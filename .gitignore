@@ -1,0 +1,16 @@
+# React Frontend
+clinique-front/node_modules
+clinique-front/build
+clinique-front/.env
+
+# Java Backend (Spring)
+clinique/target
+clinique/.idea
+clinique/.classpath
+clinique/.project
+clinique/.settings
+*.iml
+
+# Système
+.DS_Store
+Thumbs.db
