@@ -1,81 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Star, Calendar, Search, Filter } from 'lucide-react';
 import styles from '../components/CliniqueInfo.module.css';
 import Navbar from '../components/layout/Navbar';
+import { getDoctors } from '../services/medecinService';
 
 const DoctorsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('');
+  const [doctors, setDoctors] = useState([]);
 
-  const doctors = [
-    { 
-      id: 1, 
-      name: "Dr. Ahmed Khan", 
-      specialty: "Cardiologie", 
-      experience: "15 ans", 
-      image: "👨‍⚕️",
-      rating: 4.9,
-      patients: 2500,
-      languages: ["Français", "Arabe", "Anglais"]
-    },
-    { 
-      id: 2, 
-      name: "Dr. Sophie Martin", 
-      specialty: "Pédiatrie", 
-      experience: "12 ans", 
-      image: "👩‍⚕️",
-      rating: 4.8,
-      patients: 1800,
-      languages: ["Français", "Anglais"]
-    },
-    { 
-      id: 3, 
-      name: "Dr. Pierre Dubois", 
-      specialty: "Dentisterie", 
-      experience: "10 ans", 
-      image: "👨‍⚕️",
-      rating: 4.7,
-      patients: 2200,
-      languages: ["Français", "Arabe"]
-    },
-    { 
-      id: 4, 
-      name: "Dr. Fatima Alami", 
-      specialty: "Ophtalmologie", 
-      experience: "8 ans", 
-      image: "👩‍⚕️",
-      rating: 4.9,
-      patients: 1900,
-      languages: ["Français", "Arabe", "Espagnol"]
-    }
-  ];
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      const data = await getDoctors();
+      setDoctors(data);
+    };
+    fetchDoctors();
+  }, []);
 
   const specialties = ["Toutes", "Cardiologie", "Pédiatrie", "Dentisterie", "Ophtalmologie", "Neurologie"];
 
   const filteredDoctors = doctors.filter(doctor => {
-    const matchesSearch = doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = doctor.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         doctor.specialite?.nom.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSpecialty = !selectedSpecialty || selectedSpecialty === "Toutes" || 
-                           doctor.specialty === selectedSpecialty;
+                           doctor.specialite?.nom === selectedSpecialty;
     return matchesSearch && matchesSpecialty;
   });
 
   return (
     <div className={styles.doctorsPage}>
       <Navbar />
+
       {/* Header */}
       <header className={styles.pageHeader}>
         <div className={styles.pageNav}>
-          <Link to="/" className={styles.backButton}>
-            ← Retour à l'accueil
-          </Link>
+          <Link to="/" className={styles.backButton}>← Retour à l'accueil</Link>
           <h1>Notre Équipe Médicale</h1>
         </div>
       </header>
 
-      {/* Filtres et recherche */}
+      {/* Recherche et filtre */}
       <div className={styles.filtersSection}>
         <div className={styles.searchBox}>
           <Search size={20} />
@@ -94,9 +60,7 @@ const DoctorsPage = () => {
             onChange={(e) => setSelectedSpecialty(e.target.value)}
           >
             {specialties.map(specialty => (
-              <option key={specialty} value={specialty}>
-                {specialty}
-              </option>
+              <option key={specialty} value={specialty}>{specialty}</option>
             ))}
           </select>
         </div>
@@ -112,37 +76,15 @@ const DoctorsPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <div className={styles.doctorImage}>
-              {doctor.image}
-            </div>
-            
+            <div className={styles.doctorImage}>👨‍⚕️</div>
             <div className={styles.doctorInfo}>
-              <h3 className={styles.doctorName}>{doctor.name}</h3>
-              <p className={styles.doctorSpecialty}>{doctor.specialty}</p>
-              <p className={styles.doctorExperience}>{doctor.experience} d'expérience</p>
-              
-              <div className={styles.doctorRating}>
-                <Star size={16} fill="#fbbf24" color="#fbbf24" />
-                <span>{doctor.rating}/5</span>
-                <span className={styles.patientsCount}>({doctor.patients} patients)</span>
-              </div>
-
-              <div className={styles.languages}>
-                {doctor.languages.map(lang => (
-                  <span key={lang} className={styles.languageTag}>{lang}</span>
-                ))}
-              </div>
+              <h3 className={styles.doctorName}>Dr.{doctor.nom} {doctor.prenom}</h3>
+             <p className={styles.doctorSpecialty}>{doctor.specialite || "Aucune spécialité"}</p>
 
               <div className={styles.doctorActions}>
-                <Link 
-                  to={`/medecins/${doctor.id}`} 
-                  className={styles.detailButton}
-                >
-                  Voir le profil
-                </Link>
+                <Link to={`/medecins/${doctor.id}`} className={styles.detailButton}>Voir le profil</Link>
                 <button className={styles.detailButton}>
-                  <Calendar size={14} />
-                  Prendre RDV
+                  <Calendar size={14} /> Prendre RDV
                 </button>
               </div>
             </div>
@@ -152,7 +94,7 @@ const DoctorsPage = () => {
 
       {filteredDoctors.length === 0 && (
         <div className={styles.noResults}>
-          <p>Aucun médecin trouvé pour votre recherche.</p>
+          <p>Aucun médecin trouvé.</p>
         </div>
       )}
     </div>
