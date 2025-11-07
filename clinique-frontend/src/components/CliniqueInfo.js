@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from './layout/Navbar';
 import { 
@@ -8,31 +8,53 @@ import {
 } from 'lucide-react';
 import styles from './CliniqueInfo.module.css';
 import { Link } from 'react-router-dom';
+
 // Créer des icônes personnalisées avec des emojis
 const CustomIcons = {
-  Dentisterie: () => <span style={{ fontSize: '24px' }}>🦷</span>,
   Pediatrie: () => <span style={{ fontSize: '24px' }}>👶</span>,
+  Dentisterie: () => <span style={{ fontSize: '24px' }}>🦷</span>,
   Analyses: () => <span style={{ fontSize: '24px' }}>🔬</span>
+};
+
+// Mapping icônes dynamiques
+const iconMap = {
+  Heart: <Heart size={24} />,
+  Eye: <Eye size={24} />,
+  Brain: <Brain size={24} />,
+  Stethoscope: <Stethoscope size={24} />,
+  Baby: <CustomIcons.Pediatrie />,
+  Microscope: <CustomIcons.Analyses />,
 };
 
 export default function CliniqueInfo() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('services');
+  const [services, setServices] = useState([]);
+  const [loadingServices, setLoadingServices] = useState(true);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/specialities');
+        if (!response.ok) throw new Error('Erreur réseau');
+        const data = await response.json();
+        setServices(data);
+      } catch (error) {
+        console.error('Erreur lors du chargement des services:', error);
+      } finally {
+        setLoadingServices(false);
+      }
+    };
+    fetchServices();
+  }, []);
+
+  // ⚠️ Supprimé : const services = [ ... ]; ← PLUS DE TABLEAU STATIQUE
 
   const doctors = [
     { name: "Dr. Ahmed Khan", specialty: "Cardiologie", experience: "15 ans", image: "👨‍⚕️" },
     { name: "Dr. Sophie Martin", specialty: "Pédiatrie", experience: "12 ans", image: "👩‍⚕️" },
     { name: "Dr. Pierre Dubois", specialty: "Dentisterie", experience: "10 ans", image: "👨‍⚕️" },
     { name: "Dr. Fatima Alami", specialty: "Ophtalmologie", experience: "8 ans", image: "👩‍⚕️" }
-  ];
-
-  const services = [
-    { icon: <Heart size={24} />, title: "Cardiologie", description: "Soins cardiaques complets" },
-    { icon: <CustomIcons.Pediatrie />, title: "Pédiatrie", description: "Soins spécialisés enfants" },
-    { icon: <CustomIcons.Dentisterie />, title: "Dentisterie", description: "Soins dentaires avancés" },
-    { icon: <Eye size={24} />, title: "Ophtalmologie", description: "Vision et santé oculaire" },
-    { icon: <Brain size={24} />, title: "Neurologie", description: "Système nerveux et cerveau" },
-    { icon: <CustomIcons.Analyses />, title: "Analyses", description: "Laboratoire moderne" }
   ];
 
   const stats = [
@@ -42,6 +64,7 @@ export default function CliniqueInfo() {
     { number: "15", label: "Spécialités" }
   ];
 
+  // ... (reste du JSX inchangé)
   return (
     <div className={styles.container}>
   <Navbar />
@@ -111,6 +134,7 @@ export default function CliniqueInfo() {
       </section>
 
       {/* ---- Section Services ---- */}
+            {/* ---- Section Services ---- */}
       <section id="services" className={styles.services}>
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>Nos Services Médicaux</h2>
@@ -119,27 +143,38 @@ export default function CliniqueInfo() {
           </p>
         </div>
 
-        <div className={styles.servicesGrid}>
-          {services.map((service, index) => (
-            <motion.div
-              key={service.title}
-              className={styles.serviceCard}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.05, y: -5 }}
-            >
-              <div className={styles.serviceIcon}>
-                {service.icon}
+        {loadingServices ? (
+          <div className={styles.servicesGrid}>
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className={styles.serviceCard} style={{ opacity: 0.6 }}>
+                <div className={styles.serviceIcon}>⏳</div>
+                <div className={styles.serviceTitle}>Chargement...</div>
               </div>
-              <h3 className={styles.serviceTitle}>{service.title}</h3>
-              <p className={styles.serviceDescription}>{service.description}</p>
-              <button className={styles.serviceButton}>
-                En savoir plus <ArrowRight size={14} />
-              </button>
-            </motion.div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className={styles.servicesGrid}>
+            {services.map((service) => (
+              <motion.div
+                key={service.id}
+                className={styles.serviceCard}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0 }}
+                whileHover={{ scale: 1.05, y: -5 }}
+              >
+                <div className={styles.serviceIcon}>
+                  {iconMap[service.iconName] || <Stethoscope size={24} />}
+                </div>
+                <h3 className={styles.serviceTitle}>{service.title}</h3>
+                <p className={styles.serviceDescription}>{service.description}</p>
+                <button className={styles.serviceButton}>
+                  En savoir plus <ArrowRight size={14} />
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ---- Section Médecins ---- */}
