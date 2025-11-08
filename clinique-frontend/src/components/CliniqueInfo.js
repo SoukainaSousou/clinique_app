@@ -4,19 +4,19 @@ import Navbar from './layout/Navbar';
 import { 
   Stethoscope, Users, ClipboardList, Phone, 
   Calendar, Clock, MapPin, ArrowRight,
-  Heart, Eye, Brain, Star, ChevronDown, Menu, X
+  Heart, Eye, Brain, Star, ChevronDown
 } from 'lucide-react';
-import styles from './CliniqueInfo.module.css';
 import { Link } from 'react-router-dom';
+import styles from './CliniqueInfo.module.css';
+import { getDoctors } from '../services/medecinService'; // ✅ on importe ton service
 
-// Créer des icônes personnalisées avec des emojis
+// Icônes personnalisées
 const CustomIcons = {
   Pediatrie: () => <span style={{ fontSize: '24px' }}>👶</span>,
   Dentisterie: () => <span style={{ fontSize: '24px' }}>🦷</span>,
   Analyses: () => <span style={{ fontSize: '24px' }}>🔬</span>
 };
 
-// Mapping icônes dynamiques
 const iconMap = {
   Heart: <Heart size={24} />,
   Eye: <Eye size={24} />,
@@ -27,11 +27,12 @@ const iconMap = {
 };
 
 export default function CliniqueInfo() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('services');
   const [services, setServices] = useState([]);
   const [loadingServices, setLoadingServices] = useState(true);
+  const [doctors, setDoctors] = useState([]);
+  const [loadingDoctors, setLoadingDoctors] = useState(true);
 
+  // Charger les services depuis l’API
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -48,14 +49,20 @@ export default function CliniqueInfo() {
     fetchServices();
   }, []);
 
-  // ⚠️ Supprimé : const services = [ ... ]; ← PLUS DE TABLEAU STATIQUE
-
-  const doctors = [
-    { name: "Dr. Ahmed Khan", specialty: "Cardiologie", experience: "15 ans", image: "👨‍⚕️" },
-    { name: "Dr. Sophie Martin", specialty: "Pédiatrie", experience: "12 ans", image: "👩‍⚕️" },
-    { name: "Dr. Pierre Dubois", specialty: "Dentisterie", experience: "10 ans", image: "👨‍⚕️" },
-    { name: "Dr. Fatima Alami", specialty: "Ophtalmologie", experience: "8 ans", image: "👩‍⚕️" }
-  ];
+  // Charger les médecins depuis l’API (comme dans DoctorsPage.jsx)
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const data = await getDoctors();
+        setDoctors(data);
+      } catch (error) {
+        console.error('Erreur lors du chargement des médecins:', error);
+      } finally {
+        setLoadingDoctors(false);
+      }
+    };
+    fetchDoctors();
+  }, []);
 
   const stats = [
     { number: "50+", label: "Médecins experts" },
@@ -64,10 +71,9 @@ export default function CliniqueInfo() {
     { number: "15", label: "Spécialités" }
   ];
 
-  // ... (reste du JSX inchangé)
   return (
     <div className={styles.container}>
-  <Navbar />
+      <Navbar />
 
       {/* ---- Hero Section avec CTA ---- */}
       <section id="accueil" className={styles.hero}>
@@ -78,14 +84,7 @@ export default function CliniqueInfo() {
           transition={{ duration: 1 }}
           className={styles.heroContent}
         >
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 1 }}
-            className={styles.heroBadge}
-          >
-            🏆 Meilleure clinique 2024
-          </motion.div>
+          <div className={styles.heroBadge}>🏆 Meilleure clinique 2024</div>
           
           <h1 className={styles.heroTitle}>
             Votre Santé, 
@@ -106,7 +105,6 @@ export default function CliniqueInfo() {
             </button>
           </div>
 
-          {/* Stats en bas du hero */}
           <div className={styles.heroStats}>
             {stats.map((stat, index) => (
               <motion.div
@@ -123,7 +121,6 @@ export default function CliniqueInfo() {
           </div>
         </motion.div>
 
-        {/* Scroll indicator */}
         <motion.div
           className={styles.scrollIndicator}
           animate={{ y: [0, 10, 0] }}
@@ -134,7 +131,6 @@ export default function CliniqueInfo() {
       </section>
 
       {/* ---- Section Services ---- */}
-            {/* ---- Section Services ---- */}
       <section id="services" className={styles.services}>
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>Nos Services Médicaux</h2>
@@ -186,37 +182,50 @@ export default function CliniqueInfo() {
           </p>
         </div>
 
-        <div className={styles.doctorsGrid}>
-          {doctors.map((doctor, index) => (
-            <motion.div
-              key={doctor.name}
-              className={styles.doctorCard}
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <div className={styles.doctorImage}>
-                {doctor.image}
-              </div>
-              <div className={styles.doctorInfo}>
-                <h3 className={styles.doctorName}>{doctor.name}</h3>
-                <p className={styles.doctorSpecialty}>{doctor.specialty}</p>
-                <p className={styles.doctorExperience}>{doctor.experience} d'expérience</p>
-                <div className={styles.doctorRating}>
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} fill="#fbbf24" color="#fbbf24" />
-                  ))}
+        {loadingDoctors ? (
+          <p style={{ textAlign: 'center' }}>Chargement des médecins...</p>
+        ) : (
+          <div className={styles.doctorsGrid}>
+            {doctors.map((doc, index) => (
+              <motion.div
+                key={doc.id}
+                className={styles.doctorCard}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <div className={styles.doctorImage}>
+                  {doc.image ? (
+                    <img src={doc.image} alt={`${doc.nom} ${doc.prenom}`} />
+                  ) : (
+                    <span>{doc.specialite?.iconName || "👨‍⚕️"}</span>
+                  )}
                 </div>
-                <Link 
-  to={`/medecins/${doctor.id}`} 
-  className={styles.doctorButton}
->
-  Voir Profil <ArrowRight size={14} />
-</Link>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                <div className={styles.doctorInfo}>
+                  <h3>{doc.nom} {doc.prenom}</h3>
+                  <p>Spécialité : {doc.specialite?.title || "Non spécifiée"}</p>
+                  <p>Expériences : {doc.experiences}</p>
+                  <p>Langues : {doc.languages?.join(", ")}</p>
+
+                  <div className={styles.doctorRating}>
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={16} fill="#fbbf24" color="#fbbf24" />
+                    ))}
+                  </div>
+
+                  <div className={styles.doctorActions}>
+                    <Link to={`/medecins/${doc.id}`} className={styles.doctorButton}>
+                      Voir Profil <ArrowRight size={14} />
+                    </Link>
+                    <button className={styles.doctorButton}>
+                      Prendre RDV <Calendar size={14} />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ---- Section Urgences ---- */}
