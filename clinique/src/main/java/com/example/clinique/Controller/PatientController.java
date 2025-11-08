@@ -1,0 +1,66 @@
+package com.example.clinique.Controller;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.clinique.entities.Patient;
+import com.example.clinique.repository.PatientRepository;
+
+@CrossOrigin(origins = "http://localhost:3000") // autorise React
+@RestController
+@RequestMapping("/api/patients")
+public class PatientController {
+
+    @Autowired
+    private PatientRepository patientRepository;
+
+    // 🔹 Liste de tous les patients
+    @GetMapping
+    public List<Patient> getAllPatients() {
+        return patientRepository.findAll();
+    }
+
+    // 🔹 Ajouter un patient
+    @PostMapping
+    public Patient addPatient(@RequestBody Patient patient) {
+        return patientRepository.save(patient);
+    }
+
+    // 🔹 Récupérer un patient par ID
+    @GetMapping("/{id}")
+    public Optional<Patient> getPatientById(@PathVariable Integer id) {
+        return patientRepository.findById(id);
+    }
+
+    // 🔹 Modifier un patient
+    @PutMapping("/{id}")
+    public Patient updatePatient(@PathVariable Integer id, @RequestBody Patient updatedPatient) {
+        return patientRepository.findById(id)
+                .map(patient -> {
+                    patient.setNom(updatedPatient.getNom());
+                    patient.setPrenom(updatedPatient.getPrenom());
+                    patient.setEmail(updatedPatient.getEmail());
+                    patient.setTel(updatedPatient.getTel());
+                    patient.setAdresse(updatedPatient.getAdresse());
+                    return patientRepository.save(patient);
+                })
+                .orElseThrow(() -> new RuntimeException("Patient non trouvé"));
+    }
+
+    // 🔹 Supprimer un patient
+    @DeleteMapping("/{id}")
+    public void deletePatient(@PathVariable Integer id) {
+        patientRepository.deleteById(id);
+    }
+}
+
