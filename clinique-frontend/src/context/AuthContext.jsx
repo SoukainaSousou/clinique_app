@@ -18,33 +18,42 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      // Vérifier la validité du token
-      authService.verifyToken()
-        .then(userData => {
-          setUser(userData);
-        })
-        .catch(() => {
-          localStorage.removeItem('token');
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
+    setLoading(false);
   }, []);
 
   const login = async (email, password) => {
     try {
       setError('');
       const response = await authService.login(email, password);
+      
+      // Stocker l'utilisateur COMPLET dans le state et localStorage
       setUser(response.user);
       localStorage.setItem('token', response.token);
-      return { success: true };
+      localStorage.setItem('user', JSON.stringify(response.user));
+      
+      return { 
+        success: true, 
+        redirectUrl: response.redirectUrl // ← RETOURNER L'URL DE REDIRECTION
+      };
     } catch (error) {
-      setError(error.response?.data?.message || 'Erreur de connexion');
-      return { success: false, error: error.response?.data?.message };
+      const errorMessage = error.response?.data?.message || 'Erreur de connexion';
+      setError(errorMessage);
+      return { 
+        success: false, 
+        error: errorMessage 
+      };
     }
   };
 
@@ -54,6 +63,7 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.register(userData);
       setUser(response.user);
       localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
       return { success: true };
     } catch (error) {
       setError(error.response?.data?.message || "Erreur d'inscription");
@@ -64,6 +74,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
   };
 
   const value = {

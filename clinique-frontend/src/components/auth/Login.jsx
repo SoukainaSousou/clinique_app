@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Navbar from '../layout/Navbar';
-
-
 import './Auth.css';
 
 const Login = () => {
@@ -32,13 +30,16 @@ const Login = () => {
     setLoading(false);
 
     if (result.success) {
-      navigate('/dashboard');
+      // Utiliser l'URL de redirection du backend
+      const redirectUrl = result.redirectUrl || '/';
+      console.log('Redirection vers:', redirectUrl);
+      navigate(redirectUrl);
     }
   };
 
   return (
     <>
-      <Navbar />  {/* <-- Navbar en haut */}
+      <Navbar />
       <div className="auth-container">
         <div className="auth-form">
           <h2>Connexion</h2>
