@@ -12,7 +12,7 @@ export default function AppointmentsListS() {
       <div className="flex justify-between mb-4">
         <h2 className="text-xl font-bold">Rendez-vous</h2>
         <Link
-          to="/dashboardS/appointments/add"
+          to="/secretaire/dashboard/appointments/add"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
           Nouveau RDV
