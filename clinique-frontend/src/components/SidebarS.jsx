@@ -1,48 +1,59 @@
 import { Link, useLocation } from "react-router-dom";
-import { FaUserMd, FaCalendarAlt, FaUsers, FaSignOutAlt } from "react-icons/fa"; // icônes pro
+import { CalendarDays, Users, User, LogOut, LayoutDashboard } from "lucide-react";
 
 export default function SidebarS() {
   const { pathname } = useLocation();
 
   const links = [
-    { to: "/secretaire/dashboard", label: "DashboardS", icon: <FaUserMd size={18} /> },
-    { to: "/secretaire/dashboard/patients", label: "Patients", icon: <FaUsers size={18} /> },
-    { to: "/secretaire/dashboard/appointments", label: "Rendez-vous", icon: <FaCalendarAlt size={18} /> },
-    // Tu peux ajouter Planning, Notifications etc.
+    { to: "/secretaire/dashboard", label: "Tableau de bord", icon: <LayoutDashboard size={20} /> },
+    { to: "/secretaire/dashboard/patients", label: "Patients", icon: <Users size={20} /> },
+    { to: "/secretaire/dashboard/appointments", label: "Rendez-vous", icon: <CalendarDays size={20} /> },
   ];
 
   return (
-    <div className="w-64 min-h-screen bg-white shadow-lg p-5 flex flex-col justify-between">
-      {/* Header */}
-      <div className="flex items-center mb-8">
-        <FaUserMd size={28} className="text-blue-600 mr-3" />
-        <h2 className="text-2xl font-bold text-blue-600">Espace Secrétaire</h2>
+    <aside className="w-64 h-screen bg-gradient-to-b from-blue-700 to-blue-900 text-white flex flex-col justify-between shadow-xl">
+      {/* ---- HEADER ---- */}
+      <div>
+        <div className="flex items-center gap-3 p-6 border-b border-blue-500">
+          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-blue-700 font-bold text-lg">
+            👩‍💼
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold leading-tight">Espace Secrétaire</h2>
+            <p className="text-sm text-purple-200">Clinique Manager</p>
+          </div>
+        </div>
+
+        {/* ---- MENU ---- */}
+        <nav className="mt-4">
+          <ul className="space-y-1">
+            {links.map((l) => (
+              <li key={l.to}>
+                <Link
+                  to={l.to}
+                  className={`flex items-center gap-3 px-6 py-2.5 transition rounded-lg ${pathname === l.to ? "bg-blue-700" : "hover:bg-blue-700"
+                    }`}
+                >
+                  {l.icon}
+                  <span>{l.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
 
-      {/* Links */}
-      <nav className="flex-1 space-y-2">
-        {links.map((l) => (
-          <Link
-            key={l.to}
-            to={l.to}
-            className={`flex items-center p-3 rounded hover:bg-blue-50 text-blue-700 font-medium ${
-              pathname === l.to ? "bg-blue-100 font-semibold" : ""
-            }`}
-          >
-            <span className="mr-3">{l.icon}</span>
-            {l.label}
-          </Link>
-        ))}
-      </nav>
+      {/* ---- LOGOUT ---- */}
+      <div className="p-6 border-t border-blue-500">
+        <Link
+          to="/"
+          className="flex items-center gap-3 px-4 py-2 w-full text-left hover:bg-red-600 bg-red-500 rounded-lg transition"
+        >
+          <LogOut size={20} />
+          <span>Déconnexion</span>
+        </Link>
+      </div>
 
-      {/* Déconnexion */}
-      <Link
-        to="/"
-        className="flex items-center p-3 mt-8 text-white bg-red-500 rounded hover:bg-red-600 justify-center"
-      >
-        <FaSignOutAlt className="mr-2" />
-        Déconnexion
-      </Link>
-    </div>
+    </aside>
   );
 }

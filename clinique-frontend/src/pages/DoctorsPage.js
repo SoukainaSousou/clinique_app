@@ -23,10 +23,10 @@ const DoctorsPage = () => {
 
   const filteredDoctors = doctors.filter(d => {
     const matchesSearch = d.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          d.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          d.specialite?.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSpecialty = !selectedSpecialty || selectedSpecialty === "Toutes" || 
-                             d.specialite?.title === selectedSpecialty;
+      d.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      d.specialite?.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSpecialty = !selectedSpecialty || selectedSpecialty === "Toutes" ||
+      d.specialite?.title === selectedSpecialty;
     return matchesSearch && matchesSpecialty;
   });
 
@@ -63,14 +63,14 @@ const DoctorsPage = () => {
       {/* Liste des médecins */}
       <div className={styles.doctorsGrid}>
         {filteredDoctors.map((doc, index) => (
-          <motion.div key={doc.id} className={styles.doctorCard} initial={{opacity:0,y:30}} animate={{opacity:1,y:0}} transition={{delay:index*0.1}}>
+          <motion.div key={doc.id} className={styles.doctorCard} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
             <div className={styles.doctorImage}>
-  {doc.image ? (
-    <img src={doc.image} alt={`${doc.nom} ${doc.prenom}`} />
-  ) : (
-    <span>{doc.specialite?.iconName || "👨‍⚕️"}</span>
-  )}
-</div>
+              {doc.image ? (
+                <img src={doc.image} />
+              ) : (
+                <span>{doc.specialite?.iconName || "👨‍⚕️"}</span>
+              )}
+            </div>
 
             <div className={styles.doctorInfo}>
               <h3>{doc.nom} {doc.prenom}</h3>
