@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.clinique.entities.Patient;
 import com.example.clinique.repository.PatientRepository;
@@ -63,12 +64,24 @@ public class PatientController {
     public void deletePatient(@PathVariable Integer id) {
         patientRepository.deleteById(id);
     }
+
+    // Dans PatientController
+
+    @GetMapping("/search")
+    public List<Patient> searchPatients(@RequestParam String q) {
+        if (q == null || q.trim().isEmpty()) {
+            return patientRepository.findAll();
+        }
+        return patientRepository.searchByKeyword(q.trim());
+    }
+
+
     @GetMapping("/email/{email}")
-public ResponseEntity<Patient> getPatientByEmail(@PathVariable String email) {
-    return patientRepository.findByEmail(email)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
-}
+    public ResponseEntity<Patient> getPatientByEmail(@PathVariable String email) {
+        return patientRepository.findByEmail(email)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
 }
 

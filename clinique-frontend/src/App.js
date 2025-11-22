@@ -14,6 +14,7 @@ import DoctorDetail from './components/DoctorDetail';
 import DashboardM from "./pages/medecin/MedecinDashboard";
 import Rendezvous from "./pages/medecin/RendezvousM";
 import Patients from "./pages/medecin/PatientsM";
+import AjouterConsultation from "./pages/medecin/AjouterConsultation";
 
 import DashboardS from "./pages/secreitaire/SecretaireDashboard";
 import PatientsListS from "./pages/secreitaire/patients/PatientsListS";
@@ -55,6 +56,8 @@ function App() {
           <Route path="/medecin/dashboard" element={<DashboardM />} />
           <Route path="/medecin/rendezvous" element={<Rendezvous />} />
           <Route path="/medecin/patients" element={<Patients />} />
+          <Route path="/medecin/consultations/nouvelle/:patientId" element={<AjouterConsultation />}
+        />
 
           {/* Admin crud specialite */}
           <Route path="/admin/dashboard" element={<DashboardA />} />
