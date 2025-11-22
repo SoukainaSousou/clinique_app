@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class RendezVousService {
@@ -137,5 +139,12 @@ public class RendezVousService {
 
         return rendezVousRepo.save(rdv);
     }
+    // Méthode pour récupérer les créneaux occupés
+public List<String> getOccupiedSlots(Integer medecinId, LocalDate date) {
+    List<RendezVous> rendezVousList = rendezVousRepo.findByMedecinIdAndDate(medecinId, date);
+    return rendezVousList.stream()
+            .map(RendezVous::getSlot)
+            .collect(Collectors.toList());
+}
     
 }

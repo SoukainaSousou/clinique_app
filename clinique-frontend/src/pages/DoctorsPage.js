@@ -34,6 +34,8 @@ const DoctorsPage = () => {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedSlot, setSelectedSlot] = useState('');
+  const [occupiedSlots, setOccupiedSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   const frenchDays = ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'];
   const frenchMonths = [
@@ -47,6 +49,31 @@ const DoctorsPage = () => {
   ];
 
   const saturdaySlots = ['09:00','09:30','10:00','10:30','11:00','11:30'];
+
+  // Fonction pour récupérer les créneaux occupés
+  const fetchOccupiedSlots = async (doctorId, date) => {
+    if (!doctorId || !date) return;
+    
+    try {
+      setLoadingSlots(true);
+      const formattedDate = date.toISOString().split('T')[0];
+      const response = await fetch(`http://localhost:8080/rendezvous/occupied-slots/${doctorId}/${formattedDate}`);
+      if (response.ok) {
+        const slots = await response.json();
+        setOccupiedSlots(slots);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la récupération des créneaux occupés:", error);
+      setOccupiedSlots([]);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
+  // Fonction pour vérifier si un créneau est disponible
+  const isSlotAvailable = (slot) => {
+    return !occupiedSlots.includes(slot);
+  };
 
   const getSlotsForDate = (date) => {
     const day = date.getDay();
@@ -95,6 +122,13 @@ const DoctorsPage = () => {
     fetchDoctors();
   }, []);
 
+  // Charger les créneaux occupés quand la date ou le médecin change
+  useEffect(() => {
+    if (selectedDoctor && selectedDate) {
+      fetchOccupiedSlots(selectedDoctor.id, selectedDate);
+    }
+  }, [selectedDate, selectedDoctor]);
+
   const specialties = [
     'Toutes','Cardiologie','Pédiatrie','Dentisterie','Ophtalmologie','Neurologie',
   ];
@@ -135,49 +169,51 @@ const DoctorsPage = () => {
     setPatientForm({ nom:'', prenom:'', email:'', telephone:'' });
     setSelectedDate(new Date());
     setSelectedSlot('');
+    setOccupiedSlots([]);
   };
 
   const confirmAppointment = async () => {
-  try {
-    console.log("🔍 Recherche du patient avec email:", patientForm.email);
-    
-    // 1. Chercher le patient par email
-    let patient = await getPatientByEmail(patientForm.email);
-    console.log("📋 Patient trouvé:", patient);
-    
-    // 2. Si pas trouvé, créer le patient
-    if (!patient) {
-      console.log("➕ Création d'un nouveau patient");
-      patient = await createPatient(patientForm);
-      console.log("✅ Patient créé avec ID:", patient.id);
+    try {
+      console.log("🔍 Recherche du patient avec email:", patientForm.email);
+      
+      // 1. Chercher le patient par email
+      let patient = await getPatientByEmail(patientForm.email);
+      console.log("📋 Patient trouvé:", patient);
+      
+      // 2. Si pas trouvé, créer le patient
+      if (!patient) {
+        console.log("➕ Création d'un nouveau patient");
+        patient = await createPatient(patientForm);
+        console.log("✅ Patient créé avec ID:", patient.id);
+      }
+
+      // 3. Préparer les données pour le NOUVEAU endpoint
+      const appointmentData = {
+        date: selectedDate.toISOString().split('T')[0],
+        slot: selectedSlot,
+        patientId: patient.id,  // Utiliser l'ID du patient existant
+        doctorId: selectedDoctor.id
+      };
+
+      console.log("📅 Données du rendez-vous envoyées:", appointmentData);
+
+      // 4. Créer le rendez-vous avec le NOUVEAU format
+      await createAppointment(appointmentData);
+
+      alert("Rendez-vous confirmé !");
+      handleCloseModal();
+    } catch (error) {
+      console.error("❌ Erreur détaillée:", error);
+      
+      if (error.response) {
+        console.error("📡 Status:", error.response.status);
+        console.error("📡 Données d'erreur:", error.response.data);
+      }
+      
+      alert("Erreur lors de la confirmation du rendez-vous.");
     }
+  };
 
-    // 3. Préparer les données pour le NOUVEAU endpoint
-    const appointmentData = {
-      date: selectedDate.toISOString().split('T')[0],
-      slot: selectedSlot,
-      patientId: patient.id,  // Utiliser l'ID du patient existant
-      doctorId: selectedDoctor.id
-    };
-
-    console.log("📅 Données du rendez-vous envoyées:", appointmentData);
-
-    // 4. Créer le rendez-vous avec le NOUVEAU format
-    await createAppointment(appointmentData);
-
-    alert("Rendez-vous confirmé !");
-    handleCloseModal();
-  } catch (error) {
-    console.error("❌ Erreur détaillée:", error);
-    
-    if (error.response) {
-      console.error("📡 Status:", error.response.status);
-      console.error("📡 Données d'erreur:", error.response.data);
-    }
-    
-    alert("Erreur lors de la confirmation du rendez-vous.");
-  }
-};
   return (
     <div className={styles.doctorsPage}>
       <Navbar />
@@ -342,19 +378,70 @@ const DoctorsPage = () => {
                     })}
                   </div>
 
+                  {loadingSlots && (
+                    <div style={{ textAlign: 'center', color: '#666', margin: '10px 0' }}>
+                      Chargement des disponibilités...
+                    </div>
+                  )}
+
                   <div className={styles.slotsGrid}>
-                    {getSlotsForDate(selectedDate).map(slot => (
-                      <button key={slot} type="button"
-                        className={`${styles.slotButton} ${selectedSlot===slot ? styles.slotButtonSelected : ''}`}
-                        onClick={()=>setSelectedSlot(slot)}>
-                        {slot}
-                      </button>
-                    ))}
+                    {getSlotsForDate(selectedDate).map(slot => {
+                      const isOccupied = !isSlotAvailable(slot);
+                      const isSelected = selectedSlot === slot;
+                      
+                      return (
+                        <button 
+                          key={slot} 
+                          type="button"
+                          className={`${styles.slotButton} ${
+                            isSelected ? styles.slotButtonSelected : ''
+                          } ${
+                            isOccupied ? styles.slotButtonOccupied : ''
+                          }`}
+                          onClick={() => {
+                            if (!isOccupied) {
+                              setSelectedSlot(slot);
+                            }
+                          }}
+                          disabled={isOccupied}
+                        >
+                          {slot}
+                          {isOccupied && <span style={{
+                            fontSize: '0.7em',
+                            backgroundColor: '#dc3545',
+                            color: 'white',
+                            padding: '2px 6px',
+                            borderRadius: '10px',
+                            marginLeft: '5px'
+                          }}>Occupé</span>}
+                        </button>
+                      );
+                    })}
                   </div>
+
+                  {occupiedSlots.length > 0 && (
+                    <div style={{
+                      textAlign: 'center',
+                      color: '#856404',
+                      backgroundColor: '#fff3cd',
+                      padding: '8px',
+                      borderRadius: '4px',
+                      margin: '10px 0',
+                      fontSize: '0.9em'
+                    }}>
+                      {occupiedSlots.length} créneau(x) déjà réservé(s) pour cette date
+                    </div>
+                  )}
 
                   <div className={styles.stepActions}>
                     <button type="button" onClick={()=>setStep(1)}>⬅ Retour</button>
-                    <button type="button" onClick={()=>{ if(!selectedSlot){alert('Veuillez choisir un créneau');return;} setStep(3); }}>Continuer</button>
+                    <button type="button" onClick={()=>{ 
+                      if(!selectedSlot){
+                        alert('Veuillez choisir un créneau');
+                        return;
+                      } 
+                      setStep(3); 
+                    }}>Continuer</button>
                   </div>
                 </div>
               </div>
