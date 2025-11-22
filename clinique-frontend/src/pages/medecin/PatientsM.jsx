@@ -42,9 +42,9 @@ const Patients = () => {
                 <td className="py-2 px-3">+212 612345678</td>
                 <td className="py-2 px-3">Casablanca</td>
                 <td className="py-2 px-3 text-center">
-                  <button className="text-blue-600 hover:underline mr-2">Voir</button>
-                  <button className="text-green-600 hover:underline mr-2">Modifier</button>
-                  <button className="text-red-600 hover:underline">Supprimer</button>
+                  <button className="text-white-600 hover:underline mr-2">Voir</button>
+                  <button className="text-white-600 hover:underline mr-2">Modifier</button>
+                  <button className="text-white-600 hover:underline">Supprimer</button>
                 </td>
               </tr>
               <tr className="border-t hover:bg-gray-50">
@@ -54,9 +54,9 @@ const Patients = () => {
                 <td className="py-2 px-3">+212 699887766</td>
                 <td className="py-2 px-3">Rabat</td>
                 <td className="py-2 px-3 text-center">
-                  <button className="text-blue-600 hover:underline mr-2">Voir</button>
-                  <button className="text-green-600 hover:underline mr-2">Modifier</button>
-                  <button className="text-red-600 hover:underline">Supprimer</button>
+                  <button className="text-white-600 hover:underline mr-2">Voir</button>
+                  <button className="text-white-600 hover:underline mr-2">Modifier</button>
+                  <button className="text-white-600 hover:underline">Supprimer</button>
                 </td>
               </tr>
             </tbody>

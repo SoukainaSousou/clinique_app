@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from './layout/Navbar';
-import { 
-  Stethoscope, Users, ClipboardList, Phone, 
+import {
+  Stethoscope, Users, ClipboardList, Phone,
   Calendar, Clock, MapPin, ArrowRight,
   Heart, Eye, Brain, Star, ChevronDown
 } from 'lucide-react';
@@ -85,17 +85,17 @@ export default function CliniqueInfo() {
           className={styles.heroContent}
         >
           <div className={styles.heroBadge}>🏆 Meilleure clinique 2024</div>
-          
+
           <h1 className={styles.heroTitle}>
-            Votre Santé, 
+            Votre Santé,
             <span className={styles.highlight}> Notre Priorité</span>
           </h1>
-          
+
           <p className={styles.heroText}>
-            Des soins médicaux d'excellence dans un environnement moderne et chaleureux. 
+            Des soins médicaux d'excellence dans un environnement moderne et chaleureux.
             Notre équipe de professionnels dévoués est à votre service 24h/24.
           </p>
-          
+
           <div className={styles.heroButtons}>
             <button className={styles.primaryButton}>
               Prendre Rendez-vous <ArrowRight size={16} />
@@ -196,7 +196,7 @@ export default function CliniqueInfo() {
               >
                 <div className={styles.doctorImage}>
                   {doc.image ? (
-                    <img src={doc.image} alt={`${doc.nom} ${doc.prenom}`} />
+                    <img src={doc.image} />
                   ) : (
                     <span>{doc.specialite?.iconName || "👨‍⚕️"}</span>
                   )}
@@ -240,7 +240,7 @@ export default function CliniqueInfo() {
               Service d'Urgence 24h/24
             </h2>
             <p className={styles.emergencyDescription}>
-              Notre service d'urgence est disponible jour et nuit pour prendre 
+              Notre service d'urgence est disponible jour et nuit pour prendre
               en charge toutes les situations médicales critiques.
             </p>
             <div className={styles.emergencyInfo}>
@@ -261,7 +261,7 @@ export default function CliniqueInfo() {
               Appeler Urgence <Phone size={16} />
             </button>
           </motion.div>
-          
+
           <motion.div
             className={styles.emergencyVisual}
             initial={{ opacity: 0, x: 50 }}
@@ -280,7 +280,7 @@ export default function CliniqueInfo() {
             <p className={styles.contactDescription}>
               N'hésitez pas à nous contacter pour toute question ou prise de rendez-vous.
             </p>
-            
+
             <div className={styles.contactItems}>
               <div className={styles.contactItem}>
                 <Phone size={24} />
@@ -289,7 +289,7 @@ export default function CliniqueInfo() {
                   <p>0536-50-06-01</p>
                 </div>
               </div>
-              
+
               <div className={styles.contactItem}>
                 <MapPin size={24} />
                 <div>
@@ -297,12 +297,12 @@ export default function CliniqueInfo() {
                   <p>12 Rue de la Santé, Oujda</p>
                 </div>
               </div>
-              
+
               <div className={styles.contactItem}>
                 <Clock size={24} />
                 <div>
                   <h4>Horaires</h4>
-                  <p>Lun - Ven: 8h-20h<br/>Sam: 8h-14h</p>
+                  <p>Lun - Ven: 8h-20h<br />Sam: 8h-14h</p>
                 </div>
               </div>
             </div>
@@ -340,7 +340,7 @@ export default function CliniqueInfo() {
               Votre partenaire santé de confiance à Oujda.
             </p>
           </div>
-          
+
           <div className={styles.footerSection}>
             <h4>Liens Rapides</h4>
             <ul className={styles.footerLinks}>
@@ -350,7 +350,7 @@ export default function CliniqueInfo() {
               <li><a href="#urgence">Urgences</a></li>
             </ul>
           </div>
-          
+
           <div className={styles.footerSection}>
             <h4>Contact</h4>
             <p>📞 0536-50-06-01</p>
@@ -358,7 +358,7 @@ export default function CliniqueInfo() {
             <p>✉️ contact@clinique-santeplus.ma</p>
           </div>
         </div>
-        
+
         <div className={styles.footerBottom}>
           <p>&copy; 2024 Clinique SantéPlus. Tous droits réservés.</p>
         </div>
