@@ -30,6 +30,8 @@ const DoctorsPage = () => {
     prenom: '',
     email: '',
     telephone: '',
+     cin: '',           // ← Ajouté
+  mot_de_passe: ''   // ← Ajouté
   });
 
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -164,56 +166,76 @@ const DoctorsPage = () => {
   };
 
   const handleCloseModal = () => {
-    setSelectedDoctor(null);
-    setStep(0);
-    setPatientForm({ nom:'', prenom:'', email:'', telephone:'' });
-    setSelectedDate(new Date());
-    setSelectedSlot('');
-    setOccupiedSlots([]);
-  };
+  setSelectedDoctor(null);
+  setStep(0);
+  setPatientForm({ 
+    nom:'', 
+    prenom:'', 
+    email:'', 
+    telephone:'', 
+    cin:'',           // ← Ajouté
+    mot_de_passe:''   // ← Ajouté
+  });
+  setSelectedDate(new Date());
+  setSelectedSlot('');
+  setOccupiedSlots([]);
+};
 
   const confirmAppointment = async () => {
-    try {
-      console.log("🔍 Recherche du patient avec email:", patientForm.email);
-      
-      // 1. Chercher le patient par email
-      let patient = await getPatientByEmail(patientForm.email);
-      console.log("📋 Patient trouvé:", patient);
-      
-      // 2. Si pas trouvé, créer le patient
-      if (!patient) {
-        console.log("➕ Création d'un nouveau patient");
-        patient = await createPatient(patientForm);
-        console.log("✅ Patient créé avec ID:", patient.id);
-      }
-
-      // 3. Préparer les données pour le NOUVEAU endpoint
-      const appointmentData = {
-        date: selectedDate.toISOString().split('T')[0],
-        slot: selectedSlot,
-        patientId: patient.id,  // Utiliser l'ID du patient existant
-        doctorId: selectedDoctor.id
-      };
-
-      console.log("📅 Données du rendez-vous envoyées:", appointmentData);
-
-      // 4. Créer le rendez-vous avec le NOUVEAU format
-      await createAppointment(appointmentData);
-
-      alert("Rendez-vous confirmé !");
-      handleCloseModal();
-    } catch (error) {
-      console.error("❌ Erreur détaillée:", error);
-      
-      if (error.response) {
-        console.error("📡 Status:", error.response.status);
-        console.error("📡 Données d'erreur:", error.response.data);
-      }
-      
-      alert("Erreur lors de la confirmation du rendez-vous.");
+  try {
+    console.log("🔍 Recherche du patient avec email:", patientForm.email);
+    
+    // 1. Chercher le patient par email
+    let patient = await getPatientByEmail(patientForm.email);
+    console.log("📋 Patient trouvé:", patient);
+    
+    // 2. Si pas trouvé, créer le patient avec TOUS les champs
+    if (!patient) {
+      console.log("➕ Création d'un nouveau patient");
+      patient = await createPatient(patientForm); // Envoie tous les champs
+      console.log("✅ Patient créé avec ID:", patient.id);
     }
-  };
 
+    // 3. Préparer les données pour le rendez-vous
+    const appointmentData = {
+      date: selectedDate.toISOString().split('T')[0],
+      slot: selectedSlot,
+      patientId: patient.id,
+      doctorId: selectedDoctor.id
+    };
+
+    console.log("📅 Données du rendez-vous envoyées:", appointmentData);
+
+    // 4. Créer le rendez-vous
+    await createAppointment(appointmentData);
+
+    alert("✅ Rendez-vous confirmé avec succès !");
+    handleCloseModal();
+  } catch (error) {
+    console.error("❌ Erreur détaillée:", error);
+    
+    if (error.response) {
+      console.error("📡 Status:", error.response.status);
+      console.error("📡 Données d'erreur:", error.response.data);
+      
+      // Vérification spécifique pour l'erreur de CIN dupliqué
+      const errorMessage = error.response.data?.message || '';
+      const errorDetails = JSON.stringify(error.response.data).toLowerCase();
+      
+      if (errorMessage.includes('CIN') || errorDetails.includes('cin') || 
+          errorMessage.includes('duplicate') || errorDetails.includes('unique') ||
+          errorMessage.includes('déjà') || errorDetails.includes('existe')) {
+        alert("❌ Erreur : Ce numéro CIN est déjà utilisé par un autre patient. Veuillez utiliser un CIN différent ou vous connecter avec votre compte existant.");
+      } else if (error.response.status === 500) {
+        alert("❌ Erreur serveur : Le numéro CIN existe peut-être déjà dans notre système. Veuillez vérifier vos informations ou contacter le support.");
+      } else {
+        alert("❌ Erreur lors de la confirmation du rendez-vous: " + (errorMessage || 'Veuillez réessayer.'));
+      }
+    } else {
+      alert("Erreur de connexion. Veuillez vérifier votre internet et réessayer.");
+    }
+  }
+};
   return (
     <div className={styles.doctorsPage}>
       <Navbar />
@@ -321,34 +343,107 @@ const DoctorsPage = () => {
 
             <h2>Prendre rendez-vous</h2>
 
-            {/* Étape 1 */}
-            {step === 1 && (
-              <div className={styles.stepContent}>
-                <h3>Vos informations</h3>
-                <form onSubmit={(e) => { e.preventDefault(); setStep(2); }}>
-                  <label>Nom :
-                    <input type="text" value={patientForm.nom} onChange={(e) =>
-                      setPatientForm({ ...patientForm, nom: e.target.value })} required />
-                  </label>
-                  <label>Prénom :
-                    <input type="text" value={patientForm.prenom} onChange={(e) =>
-                      setPatientForm({ ...patientForm, prenom: e.target.value })} required />
-                  </label>
-                  <label>Email :
-                    <input type="email" value={patientForm.email} onChange={(e) =>
-                      setPatientForm({ ...patientForm, email: e.target.value })} required />
-                  </label>
-                  <label>Téléphone :
-                    <input type="tel" value={patientForm.telephone} onChange={(e) =>
-                      setPatientForm({ ...patientForm, telephone: e.target.value })} required />
-                  </label>
-                  <div className={styles.stepActions}>
-                    <button type="button" onClick={handleCloseModal}>Annuler</button>
-                    <button type="submit">Continuer</button>
-                  </div>
-                </form>
-              </div>
-            )}
+        {/* Étape 1 */}
+{step === 1 && (
+  <div className={styles.stepContent}>
+    <h3>Vos informations</h3>
+    <form onSubmit={(e) => { 
+      e.preventDefault(); 
+      
+      // Validation avancée
+      const errors = [];
+      
+      if (!patientForm.nom.trim()) errors.push('Le nom est obligatoire');
+      if (!patientForm.prenom.trim()) errors.push('Le prénom est obligatoire');
+      if (!patientForm.email.trim()) errors.push('L\'email est obligatoire');
+      if (!patientForm.telephone.trim()) errors.push('Le téléphone est obligatoire');
+      if (!patientForm.cin.trim()) errors.push('Le CIN est obligatoire');
+      if (!patientForm.mot_de_passe.trim()) {
+        errors.push('Le mot de passe est obligatoire');
+      } else if (patientForm.mot_de_passe.length < 6) {
+        errors.push('Le mot de passe doit contenir au moins 6 caractères');
+      }
+      
+      if (errors.length > 0) {
+        alert('Veuillez corriger les erreurs suivantes :\n' + errors.join('\n'));
+        return;
+      }
+      
+      setStep(2); 
+    }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+        <label>Nom :
+          <input 
+            type="text" 
+            value={patientForm.nom} 
+            onChange={(e) => setPatientForm({ ...patientForm, nom: e.target.value })} 
+            required 
+          />
+        </label>
+        <label>Prénom :
+          <input 
+            type="text" 
+            value={patientForm.prenom} 
+            onChange={(e) => setPatientForm({ ...patientForm, prenom: e.target.value })} 
+            required 
+          />
+        </label>
+      </div>
+      
+      <label>Email :
+        <input 
+          type="email" 
+          value={patientForm.email} 
+          onChange={(e) => setPatientForm({ ...patientForm, email: e.target.value })} 
+          required 
+        />
+      </label>
+      
+      <label>Téléphone :
+        <input 
+          type="tel" 
+          value={patientForm.telephone} 
+          onChange={(e) => setPatientForm({ ...patientForm, telephone: e.target.value })} 
+          required 
+        />
+      </label>
+      
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+        <label>CIN :
+          <input 
+            type="text" 
+            value={patientForm.cin} 
+            onChange={(e) => setPatientForm({ ...patientForm, cin: e.target.value })}
+            required
+          />
+        </label>
+        <label>Mot de passe :
+          <input 
+            type="password" 
+            value={patientForm.mot_de_passe} 
+            onChange={(e) => setPatientForm({ ...patientForm, mot_de_passe: e.target.value })}
+            required
+            minLength="6"
+          />
+        </label>
+      </div>
+      
+      <div style={{ 
+        color: '#6b7280', 
+        fontSize: '0.75rem', 
+        textAlign: 'center',
+        marginBottom: '1rem'
+      }}>
+        Tous les champs sont obligatoires. Mot de passe minimum 6 caractères.
+      </div>
+
+      <div className={styles.stepActions}>
+        <button type="button" onClick={handleCloseModal}>Annuler</button>
+        <button type="submit">Continuer</button>
+      </div>
+    </form>
+  </div>
+)}
 
             {/* Étape 2 */}
             {step === 2 && (
@@ -456,9 +551,12 @@ const DoctorsPage = () => {
                 <p><strong>Patient :</strong> {patientForm.prenom} {patientForm.nom}</p>
                 <p><strong>Email :</strong> {patientForm.email}</p>
                 <p><strong>Téléphone :</strong> {patientForm.telephone}</p>
+                <p><strong>Téléphone :</strong> {patientForm.telephone}</p>
+  {patientForm.cin && <p><strong>CIN :</strong> {patientForm.cin}</p>}
+  {patientForm.mot_de_passe && <p><strong>Mot de passe :</strong> ••••••••</p>}
                 <p><strong>Date :</strong> {selectedDate.toLocaleDateString('fr-FR')}</p>
                 <p><strong>Créneau :</strong> {selectedSlot}</p>
-
+                
                 <div className={styles.stepActions}>
                   <button type="button" onClick={()=>setStep(2)}>⬅ Modifier</button>
                   <button type="button" onClick={confirmAppointment}>

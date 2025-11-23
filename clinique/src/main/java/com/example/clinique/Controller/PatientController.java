@@ -43,20 +43,22 @@ public class PatientController {
         return patientRepository.findById(id);
     }
 
-    // 🔹 Modifier un patient
-    @PutMapping("/{id}")
-    public Patient updatePatient(@PathVariable Integer id, @RequestBody Patient updatedPatient) {
-        return patientRepository.findById(id)
-                .map(patient -> {
-                    patient.setNom(updatedPatient.getNom());
-                    patient.setPrenom(updatedPatient.getPrenom());
-                    patient.setEmail(updatedPatient.getEmail());
-                    patient.setTel(updatedPatient.getTel());
-                    patient.setAdresse(updatedPatient.getAdresse());
-                    return patientRepository.save(patient);
-                })
-                .orElseThrow(() -> new RuntimeException("Patient non trouvé"));
-    }
+    // Dans PatientController.java - modifiez la méthode updatePatient
+@PutMapping("/{id}")
+public Patient updatePatient(@PathVariable Integer id, @RequestBody Patient updatedPatient) {
+    return patientRepository.findById(id)
+            .map(patient -> {
+                patient.setNom(updatedPatient.getNom());
+                patient.setPrenom(updatedPatient.getPrenom());
+                patient.setEmail(updatedPatient.getEmail());
+                patient.setTel(updatedPatient.getTel());
+                patient.setAdresse(updatedPatient.getAdresse());
+                patient.setCin(updatedPatient.getCin()); // ← Ajoutez cette ligne
+                patient.setMotDePasse(updatedPatient.getMotDePasse()); // ← Ajoutez cette ligne
+                return patientRepository.save(patient);
+            })
+            .orElseThrow(() -> new RuntimeException("Patient non trouvé"));
+}
 
     // 🔹 Supprimer un patient
     @DeleteMapping("/{id}")

@@ -1542,3 +1542,257 @@
   background-color: #f8f9fa !important;
   transform: none !important;
 }
+/* Styles pour la modal de détails des services */
+.serviceDetailsOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.serviceDetailsModal {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.serviceDetailsHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.serviceDetailsIcon {
+  background: #dbeafe;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.serviceDetailsTitle h2 {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.serviceDetailsTitle p {
+  color: #6b7280;
+  font-size: 1.1rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.serviceDetailsContent {
+  margin-bottom: 2rem;
+}
+
+.serviceDetailsSection {
+  margin-bottom: 2rem;
+}
+
+.serviceDetailsSection h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.serviceDetailsSection p {
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.serviceDetailsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.serviceDetailsList li {
+  padding: 0.5rem 0;
+  color: #6b7280;
+  border-bottom: 1px solid #f3f4f6;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.serviceDetailsList li:before {
+  content: "✓";
+  color: #10b981;
+  font-weight: bold;
+}
+
+.serviceSchedule {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.scheduleItem {
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  border-left: 4px solid #2563eb;
+}
+
+.serviceDoctors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.serviceDoctorCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+.serviceDoctorImage {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.serviceDoctorImage img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.serviceDoctorInfo h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.25rem 0;
+}
+
+.serviceDoctorInfo p {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0.1rem 0;
+}
+
+.serviceStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.serviceStat {
+  text-align: center;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+.statNumber {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2563eb;
+  margin-bottom: 0.25rem;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.noDoctors {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  padding: 2rem;
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  border: 1px dashed #d1d5db;
+}
+
+.doctorRating {
+  display: flex;
+  gap: 0.1rem;
+  margin-top: 0.5rem;
+  justify-content: center;
+}
+
+.serviceDetailsActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e5e7eb;
+}
+
+/* Style pour le bouton désactivé */
+.serviceDetailsActions button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .serviceDetailsOverlay {
+    padding: 1rem;
+  }
+  
+  .serviceDetailsModal {
+    padding: 1.5rem;
+  }
+  
+  .serviceDetailsHeader {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .serviceDoctors {
+    grid-template-columns: 1fr;
+  }
+  
+  .serviceDetailsActions {
+    flex-direction: column;
+  }
+  
+  .serviceStats {
+    grid-template-columns: 1fr;
+  }
+}
