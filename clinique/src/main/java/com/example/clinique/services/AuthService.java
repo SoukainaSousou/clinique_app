@@ -57,6 +57,8 @@ public class AuthService {
                 return "/medecin/dashboard";
             case secretaire:
                 return "/secretaire/dashboard";
+            case patient:
+                return "/patient/dashboard"; 
             default:
                 return "/";
         }

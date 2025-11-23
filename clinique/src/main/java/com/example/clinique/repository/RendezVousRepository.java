@@ -17,5 +17,9 @@ public interface RendezVousRepository extends JpaRepository<RendezVous, Integer>
 // Trouver tous les rendez-vous d'un médecin pour une date donnée
 @Query("SELECT r FROM RendezVous r WHERE r.medecin.id = :medecinId AND r.date = :date")
 List<RendezVous> findByMedecinIdAndDate(@Param("medecinId") Integer medecinId, @Param("date") LocalDate date);
+
+// NOUVELLE MÉTHODE : Trouver tous les rendez-vous d'un patient
+    @Query("SELECT r FROM RendezVous r WHERE r.patient.id = :patientId ORDER BY r.date DESC, r.slot DESC")
+    List<RendezVous> findByPatientId(@Param("patientId") Integer patientId);
 }
 

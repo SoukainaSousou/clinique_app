@@ -34,6 +34,10 @@ import StaffList from "./pages/admin/staff/StaffList";
 import StaffAdd from "./pages/admin/staff/StaffAdd";
 import StaffUpdate from "./pages/admin/staff/StaffUpdate";
 
+// NOUVEAU : Import des composants Patient
+import PatientDashboard from './pages/patient/PatientDashboard';
+import PatientRendezVous from './pages/patient/PatientRendezVous';
+
 import './styles/globals.css';
 import './App.css';
 
@@ -82,6 +86,12 @@ function App() {
 
             <Route path="patient-admin/:id" element={<PatientAdminS />} />
           </Route>
+
+          {/* NOUVEAU : Patient */}
+          <Route path="/patient/dashboard" element={<PatientDashboard />} />
+          <Route path="/patient/rendezvous" element={<PatientRendezVous />} />
+
+
 
           {/* Redirection */}
           <Route path="*" element={<Navigate to="/" />} />

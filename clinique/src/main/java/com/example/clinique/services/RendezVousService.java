@@ -139,12 +139,29 @@ public class RendezVousService {
 
         return rendezVousRepo.save(rdv);
     }
+
     // Méthode pour récupérer les créneaux occupés
-public List<String> getOccupiedSlots(Integer medecinId, LocalDate date) {
-    List<RendezVous> rendezVousList = rendezVousRepo.findByMedecinIdAndDate(medecinId, date);
-    return rendezVousList.stream()
-            .map(RendezVous::getSlot)
-            .collect(Collectors.toList());
-}
-    
+    public List<String> getOccupiedSlots(Integer medecinId, LocalDate date) {
+        List<RendezVous> rendezVousList = rendezVousRepo.findByMedecinIdAndDate(medecinId, date);
+        return rendezVousList.stream()
+                .map(RendezVous::getSlot)
+                .collect(Collectors.toList());
+    }
+
+    // NOUVELLE MÉTHODE : Récupérer les rendez-vous d'un patient
+    public List<RendezVous> getRendezVousByPatientId(Integer patientId) {
+        System.out.println("🔍 Recherche des rendez-vous pour patient ID: " + patientId);
+        
+        // Vérifier si le patient existe
+        Optional<Patient> patient = patientRepo.findById(patientId);
+        if (patient.isEmpty()) {
+            System.out.println("❌ Patient non trouvé avec ID: " + patientId);
+            return List.of(); // Retourne une liste vide si patient non trouvé
+        }
+
+        List<RendezVous> rendezVousList = rendezVousRepo.findByPatientId(patientId);
+        System.out.println("✅ " + rendezVousList.size() + " rendez-vous trouvés pour patient ID: " + patientId);
+        
+        return rendezVousList;
+    }
 }
