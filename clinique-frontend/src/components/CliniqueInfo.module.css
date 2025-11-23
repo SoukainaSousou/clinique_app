@@ -380,9 +380,15 @@
 }
 
 .doctorSpecialty {
-  color: #2563eb;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: white !important;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem !important;
+  font-weight: 600;
+  display: inline-block;
+  margin: 0.25rem 0;
+  text-align: center;
 }
 
 .doctorExperience {

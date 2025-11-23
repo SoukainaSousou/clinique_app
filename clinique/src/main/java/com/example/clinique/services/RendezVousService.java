@@ -1,21 +1,22 @@
 package com.example.clinique.services;
 
-import com.example.clinique.dto.RendezVousRequest;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.example.clinique.dto.CreateRendezVousDTO;
+import com.example.clinique.dto.RendezVousRequest;
 import com.example.clinique.entities.Medecin;
 import com.example.clinique.entities.Patient;
 import com.example.clinique.entities.RendezVous;
 import com.example.clinique.repository.MedecinRepository;
 import com.example.clinique.repository.PatientRepository;
 import com.example.clinique.repository.RendezVousRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class RendezVousService {
@@ -29,11 +30,73 @@ public class RendezVousService {
     @Autowired
     private PatientRepository patientRepo;
 
-    // NOUVELLE méthode pour utiliser l'ID patient existant
+    // MÉTHODE CORRIGÉE - Utilise Long
+    public RendezVous getRendezVousById(Long id) {
+        System.out.println("🔍 Service - Recherche du rendez-vous avec ID: " + id);
+        
+        RendezVous rendezVous = rendezVousRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Rendez-vous non trouvé avec ID: " + id));
+        
+        // Forcez le chargement des relations
+        if (rendezVous.getPatient() != null) {
+            System.out.println("📋 Patient: " + rendezVous.getPatient().getNom() + " " + rendezVous.getPatient().getPrenom());
+        }
+        
+        if (rendezVous.getMedecin() != null) {
+            System.out.println("👨‍⚕️ Médecin ID: " + rendezVous.getMedecin().getId());
+        }
+        
+        System.out.println("✅ Rendez-vous trouvé - Date: " + rendezVous.getDate() + ", Slot: " + rendezVous.getSlot());
+        
+        return rendezVous;
+    }
+
+    // NOUVELLE méthode pour mettre à jour un rendez-vous
+    public RendezVous updateRendezVous(Long id, CreateRendezVousDTO req) {
+        System.out.println("🔄 Mise à jour du rendez-vous ID: " + id);
+        
+        // Récupérer le rendez-vous existant
+        RendezVous existingRendezVous = rendezVousRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Rendez-vous non trouvé avec ID: " + id));
+
+        // Récupérer le médecin
+        Medecin medecin = medecinRepo.findById(req.getDoctorId())
+                .orElseThrow(() -> new RuntimeException("Médecin introuvable avec ID: " + req.getDoctorId()));
+
+        // Récupérer le patient
+        Patient patient = patientRepo.findById(req.getPatientId())
+                .orElseThrow(() -> new RuntimeException("Patient introuvable avec ID: " + req.getPatientId()));
+
+        // Parser la date
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(req.getDate(), formatter);
+
+        // Mettre à jour le rendez-vous
+        existingRendezVous.setPatient(patient);
+        existingRendezVous.setMedecin(medecin);
+        existingRendezVous.setDate(date);
+        existingRendezVous.setSlot(req.getSlot());
+
+        System.out.println("✅ Rendez-vous mis à jour: " + existingRendezVous.getId());
+        return rendezVousRepo.save(existingRendezVous);
+    }
+
+    // NOUVELLE méthode pour supprimer un rendez-vous
+    public void deleteRendezVous(Long id) {
+        System.out.println("🗑️ Suppression du rendez-vous ID: " + id);
+        
+        if (!rendezVousRepo.existsById(id)) {
+            throw new RuntimeException("Rendez-vous non trouvé avec ID: " + id);
+        }
+        
+        rendezVousRepo.deleteById(id);
+        System.out.println("✅ Rendez-vous supprimé: " + id);
+    }
+
+    // ... gardez toutes vos autres méthodes existantes sans changement
     public RendezVous createRendezVousWithPatientId(CreateRendezVousDTO req) {
         System.out.println("📥 Création RDV avec patientId: " + req);
 
-        // Validations
         if (req.getDoctorId() == null) {
             throw new IllegalArgumentException("L'identifiant du médecin est requis.");
         }
@@ -47,21 +110,17 @@ public class RendezVousService {
             throw new IllegalArgumentException("Le créneau horaire est requis.");
         }
 
-        // Récupérer le médecin
         Medecin medecin = medecinRepo.findById(req.getDoctorId())
                 .orElseThrow(() -> new RuntimeException("Médecin introuvable avec ID: " + req.getDoctorId()));
 
-        // Récupérer le patient par ID (EXISTANT)
         Patient patient = patientRepo.findById(req.getPatientId())
                 .orElseThrow(() -> new RuntimeException("Patient introuvable avec ID: " + req.getPatientId()));
 
         System.out.println("✅ Patient trouvé: " + patient.getNom() + " " + patient.getPrenom());
 
-        // Parser la date
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse(req.getDate(), formatter);
 
-        // Créer le rendez-vous
         RendezVous rdv = new RendezVous();
         rdv.setPatient(patient);
         rdv.setMedecin(medecin);
@@ -76,20 +135,16 @@ public class RendezVousService {
         return rendezVousRepo.save(rdv);
     }
 
-    // Ancienne méthode pour création avec infos patient complètes
     public RendezVous createRendezVous(RendezVousRequest req) {
         System.out.println("📥 Création RDV avec infos patient: " + req);
 
-        // Validations
         if (req.getDoctorId() == null) {
             throw new IllegalArgumentException("L'identifiant du médecin est requis.");
         }
 
-        // Récupérer le médecin
         Medecin medecin = medecinRepo.findById(req.getDoctorId())
                 .orElseThrow(() -> new RuntimeException("Médecin introuvable"));
 
-        // Vérifier si patient existe déjà par email
         Patient patient = null;
         if (req.getEmail() != null && !req.getEmail().isEmpty()) {
             Optional<Patient> existingPatient = patientRepo.findByEmail(req.getEmail());
@@ -99,7 +154,6 @@ public class RendezVousService {
             }
         }
 
-        // Si le patient n'existe pas, on le crée
         if (patient == null) {
             patient = new Patient();
             patient.setNom(req.getNom() != null ? req.getNom() : "Inconnu");
@@ -114,7 +168,6 @@ public class RendezVousService {
             System.out.println("✅ Nouveau patient créé: " + patient.getNom() + " " + patient.getPrenom());
         }
 
-        // Validations date et créneau
         if (req.getDate() == null || req.getDate().isEmpty()) {
             throw new IllegalArgumentException("La date du rendez-vous est requise.");
         }
@@ -125,7 +178,6 @@ public class RendezVousService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse(req.getDate(), formatter);
 
-        // Créer le rendez-vous
         RendezVous rdv = new RendezVous();
         rdv.setPatient(patient);
         rdv.setMedecin(medecin);
@@ -140,7 +192,10 @@ public class RendezVousService {
         return rendezVousRepo.save(rdv);
     }
 
+<<<<<<< HEAD
     // Méthode pour récupérer les créneaux occupés
+=======
+>>>>>>> 7534d52482f599de4ed8c12c0b97afc0c8988395
     public List<String> getOccupiedSlots(Integer medecinId, LocalDate date) {
         List<RendezVous> rendezVousList = rendezVousRepo.findByMedecinIdAndDate(medecinId, date);
         return rendezVousList.stream()
@@ -148,6 +203,7 @@ public class RendezVousService {
                 .collect(Collectors.toList());
     }
 
+<<<<<<< HEAD
     // NOUVELLE MÉTHODE : Récupérer les rendez-vous d'un patient
     public List<RendezVous> getRendezVousByPatientId(Integer patientId) {
         System.out.println("🔍 Recherche des rendez-vous pour patient ID: " + patientId);
@@ -161,6 +217,30 @@ public class RendezVousService {
 
         List<RendezVous> rendezVousList = rendezVousRepo.findByPatientId(patientId);
         System.out.println("✅ " + rendezVousList.size() + " rendez-vous trouvés pour patient ID: " + patientId);
+=======
+    public List<RendezVous> getAllRendezVous() {
+        System.out.println("🔍 Service - Récupération de tous les rendez-vous avec relations");
+        
+        List<RendezVous> rendezVousList = rendezVousRepo.findAll();
+        
+        for (RendezVous rdv : rendezVousList) {
+            if (rdv.getPatient() != null) {
+                rdv.getPatient().getNom();
+                rdv.getPatient().getPrenom();
+            }
+            
+            if (rdv.getMedecin() != null) {
+                if (rdv.getMedecin().getUser() != null) {
+                    rdv.getMedecin().getUser().getNom();
+                    rdv.getMedecin().getUser().getPrenom();
+                }
+                
+                if (rdv.getMedecin().getSpecialite() != null) {
+                    rdv.getMedecin().getSpecialite().getTitle();
+                }
+            }
+        }
+>>>>>>> 7534d52482f599de4ed8c12c0b97afc0c8988395
         
         return rendezVousList;
     }

@@ -272,20 +272,27 @@ const DoctorsPage = () => {
         </div>
       </div>
 
-      {/* Liste médecins */}
-      <div className={styles.doctorsGrid}>
-        {Object.entries(doctorsBySpecialty).map(([specName, docs]) => (
-          <div key={specName} className={styles.specialtySection}>
-            <h2 className={styles.specialtyTitle}>{specName}</h2>
-            <div className={styles.specialtyDoctorsRow}>
-              {docs.map((doc, index) => (
-                <motion.div
-                  key={doc.id}
-                  className={styles.doctorCard}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
+     {/* Liste médecins - SPÉCIALITÉS EN VERTICAL */}
+<div style={{
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '3rem',
+  maxWidth: '1200px',
+  margin: '0 auto',
+  padding: '0 2rem'
+}}>
+  {Object.entries(doctorsBySpecialty).map(([specName, docs]) => (
+    <div key={specName} style={{width: '100%'}}>
+      <h2 className={styles.specialtyTitle}>{specName}</h2>
+      <div className={styles.specialtyDoctorsRow}>
+        {docs.map((doc, index) => (
+          <motion.div
+            key={doc.id}
+            className={styles.doctorCard}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
                   <div className={styles.doctorImage}>
                     {doc.image ? (
                       <img src={doc.image} alt={`${doc.nom} ${doc.prenom}`} />
@@ -294,7 +301,7 @@ const DoctorsPage = () => {
                     )}
                   </div>
                   <div className={styles.doctorInfo}>
-                    <h3>{doc.nom} {doc.prenom}</h3>
+                    <h3>Dr.{doc.nom} {doc.prenom}</h3>
                     <p>Spécialité : {doc.specialite?.title || 'Non spécifiée'}</p>
                     <div className={styles.doctorActions}>
                       <Link to={`/medecins/${doc.id}`} className={styles.detailButton}>
