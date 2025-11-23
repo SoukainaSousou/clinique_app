@@ -93,7 +93,6 @@ public class RendezVousService {
         System.out.println("✅ Rendez-vous supprimé: " + id);
     }
 
-    // ... gardez toutes vos autres méthodes existantes sans changement
     public RendezVous createRendezVousWithPatientId(CreateRendezVousDTO req) {
         System.out.println("📥 Création RDV avec patientId: " + req);
 
@@ -192,10 +191,7 @@ public class RendezVousService {
         return rendezVousRepo.save(rdv);
     }
 
-<<<<<<< HEAD
     // Méthode pour récupérer les créneaux occupés
-=======
->>>>>>> 7534d52482f599de4ed8c12c0b97afc0c8988395
     public List<String> getOccupiedSlots(Integer medecinId, LocalDate date) {
         List<RendezVous> rendezVousList = rendezVousRepo.findByMedecinIdAndDate(medecinId, date);
         return rendezVousList.stream()
@@ -203,7 +199,6 @@ public class RendezVousService {
                 .collect(Collectors.toList());
     }
 
-<<<<<<< HEAD
     // NOUVELLE MÉTHODE : Récupérer les rendez-vous d'un patient
     public List<RendezVous> getRendezVousByPatientId(Integer patientId) {
         System.out.println("🔍 Recherche des rendez-vous pour patient ID: " + patientId);
@@ -217,7 +212,10 @@ public class RendezVousService {
 
         List<RendezVous> rendezVousList = rendezVousRepo.findByPatientId(patientId);
         System.out.println("✅ " + rendezVousList.size() + " rendez-vous trouvés pour patient ID: " + patientId);
-=======
+        
+        return rendezVousList;
+    }
+
     public List<RendezVous> getAllRendezVous() {
         System.out.println("🔍 Service - Récupération de tous les rendez-vous avec relations");
         
@@ -240,7 +238,6 @@ public class RendezVousService {
                 }
             }
         }
->>>>>>> 7534d52482f599de4ed8c12c0b97afc0c8988395
         
         return rendezVousList;
     }

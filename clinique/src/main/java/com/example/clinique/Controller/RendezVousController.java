@@ -81,10 +81,7 @@ public class RendezVousController {
         return rendezVousService.createRendezVous(req);
     }
 
-<<<<<<< HEAD
     // Endpoint pour récupérer les créneaux occupés d'un médecin pour une date
-=======
->>>>>>> 7534d52482f599de4ed8c12c0b97afc0c8988395
     @GetMapping("/occupied-slots/{doctorId}/{date}")
     public List<String> getOccupiedSlots(@PathVariable Integer doctorId, @PathVariable String date) {
         try {
@@ -94,7 +91,6 @@ public class RendezVousController {
         } catch (Exception e) {
             return Collections.emptyList();
         }
-<<<<<<< HEAD
     }
 
     // NOUVEL ENDPOINT : Récupérer les rendez-vous d'un patient
@@ -102,7 +98,5 @@ public class RendezVousController {
     public List<RendezVous> getRendezVousByPatient(@PathVariable Integer patientId) {
         System.out.println("🎯 Récupération des rendez-vous pour patient ID: " + patientId);
         return rendezVousService.getRendezVousByPatientId(patientId);
-=======
->>>>>>> 7534d52482f599de4ed8c12c0b97afc0c8988395
     }
 }
