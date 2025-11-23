@@ -331,19 +331,34 @@ const handleShowServiceDetails = async (service) => {
           </div>
 
           <div className={styles.heroStats}>
-            {stats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                className={styles.statItem}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 + index * 0.1 }}
-              >
-                <div className={styles.statNumber}>{stat.number}</div>
-                <div className={styles.statLabel}>{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
+  {stats.map((stat, index) => (
+    <motion.div
+      key={stat.label}
+      className={styles.statItem}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.8 + index * 0.1 }}
+    >
+      <div style={{
+        fontSize: '2rem',
+        fontWeight: 'bold',
+        color: '#ffffff', /* Blanc pur */
+        marginBottom: '0.5rem',
+        textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
+      }}>
+        {stat.number}
+      </div>
+      <div style={{
+        fontSize: '0.9rem',
+        color: '#fbbf24', /* Jaune doré */
+        fontWeight: '500',
+        textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)'
+      }}>
+        {stat.label}
+      </div>
+    </motion.div>
+  ))}
+</div>
         </motion.div>
 
         <motion.div
@@ -430,8 +445,10 @@ const handleShowServiceDetails = async (service) => {
                   )}
                 </div>
                 <div className={styles.doctorInfo}>
-                  <h3>Dr {doc.user?.nom || ''} {doc.user?.prenom || ''}</h3>
-                  <p>Spécialité : {doc.specialite?.title || "Non spécifiée"}</p>
+                  <h3>Dr {doc.nom || ''} {doc.prenom || ''}</h3>
+                  <p>Spécialité : <p className={styles.doctorSpecialty}>
+    {doc.specialite?.title || "Non spécifiée"}
+  </p></p>
                   <p>Expériences : {doc.experiences || "Expérience confirmée"}</p>
                   <p>Langues : {doc.languages?.join(", ") || "Français"}</p>
 
@@ -581,11 +598,12 @@ const handleShowServiceDetails = async (service) => {
                   <span>{selectedDoctor.specialite?.iconName || '👨‍⚕️'}</span>
                 )}
               </div>
-              <div className={styles.doctorHeaderInfo}>
-                <h3>Dr {selectedDoctor.user?.nom || ''} {selectedDoctor.user?.prenom || ''}</h3>
-                <p className={styles.headerSpecialty}>{selectedDoctor.specialite?.title}</p>
-                <p className={styles.headerLocation}><MapPin size={14} /> Oujda Principal Oujda</p>
-              </div>
+             {/* Dans la modal de rendez-vous */}
+<div className={styles.doctorHeaderInfo}>
+  <h3>Dr {selectedDoctor.nom || ''} {selectedDoctor.prenom || ''}</h3>
+  <p className={styles.headerSpecialty}>{selectedDoctor.specialite?.title}</p>
+  <p className={styles.headerLocation}><MapPin size={14} /> Oujda Principal Oujda</p>
+</div>
             </div>
 
             <h2>Prendre rendez-vous</h2>
@@ -792,7 +810,7 @@ const handleShowServiceDetails = async (service) => {
             {step === 3 && (
               <div className={styles.stepContent}>
                 <h3>Confirmation du rendez-vous</h3>
-                <p><strong>Docteur :</strong> Dr {selectedDoctor.user?.nom || ''} {selectedDoctor.user?.prenom || ''}</p>
+                <p><strong>Docteur :</strong> Dr {selectedDoctor.nom || ''} {selectedDoctor.prenom || ''}</p>
                 <p><strong>Spécialité :</strong> {selectedDoctor.specialite?.title}</p>
                 <p><strong>Patient :</strong> {patientForm.prenom} {patientForm.nom}</p>
                 <p><strong>Email :</strong> {patientForm.email}</p>
