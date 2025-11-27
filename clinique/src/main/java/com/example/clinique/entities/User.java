@@ -14,6 +14,16 @@ public class User {
     private String email;
     private String mot_de_passe;
 
+    // --------- SUPPRIMEZ la relation bidirectionnelle ---------
+    // COMMENTEZ ou SUPPRIMEZ ces lignes :
+    // @OneToOne(mappedBy = "user")
+    // @JsonManagedReference
+    // private Medecin medecin;
+
+    // Supprimez aussi les getters/setters pour medecin
+    // public Medecin getMedecin() { return medecin; }
+    // public void setMedecin(Medecin medecin) { this.medecin = medecin; }
+
     @Enumerated(EnumType.STRING)
     private Role role;
 

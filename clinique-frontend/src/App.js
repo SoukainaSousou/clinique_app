@@ -38,6 +38,10 @@ import StaffUpdate from "./pages/admin/staff/StaffUpdate";
 import PatientDashboard from './pages/patient/PatientDashboard';
 import PatientRendezVous from './pages/patient/PatientRendezVous';
 
+import MessagesList from './pages/admin/messages/MessagesList';
+import MessageDetail from './pages/admin/messages/MessageDetail';
+import ReplyMessage from './pages/admin/messages/ReplyMessage';
+
 import './styles/globals.css';
 import './App.css';
 
@@ -92,6 +96,9 @@ function App() {
           <Route path="/patient/rendezvous" element={<PatientRendezVous />} />
 
 
+          <Route path="/admin/messages" element={<MessagesList />} />
+          <Route path="/admin/messages/:id" element={<MessageDetail />} />
+          <Route path="/admin/messages/:id/reply" element={<ReplyMessage />} />
 
           {/* Redirection */}
           <Route path="*" element={<Navigate to="/" />} />

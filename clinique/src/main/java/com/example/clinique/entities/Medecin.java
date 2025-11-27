@@ -10,6 +10,7 @@ public class Medecin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    // RELATION SIMPLIFIÉE - Supprimez @JsonBackReference
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

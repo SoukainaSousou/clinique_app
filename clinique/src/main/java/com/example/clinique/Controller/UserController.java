@@ -1,11 +1,15 @@
 package com.example.clinique.Controller;
 
+import com.example.clinique.dto.MedecinRequest;
+import com.example.clinique.entities.Medecin;
+import com.example.clinique.entities.Speciality;
 import com.example.clinique.entities.User;
 import com.example.clinique.services.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -14,7 +18,7 @@ public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService ) {
         this.userService = userService;
     }
 
@@ -52,13 +56,21 @@ public class UserController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    // ✅ Supprimer un utilisateur
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
-        if (userService.getUserById(id).isPresent()) {
-            userService.deleteUser(id);
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+ @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
+        return userService.deleteUser(id);
+    }   
+@CrossOrigin(origins = "http://localhost:3000")
+@PostMapping("/create-medecin")
+    
+    public ResponseEntity<?> createMedecin(@RequestBody MedecinRequest request) {
+        return userService.createMedecin(request);
     }
+
+@PutMapping("/update-medecin/{id}") 
+public ResponseEntity<?> updateMedecin(@PathVariable Integer id, @RequestBody MedecinRequest request) 
+   {
+     return userService.updateMedecin(id, request);
+    } 
+     
 }
