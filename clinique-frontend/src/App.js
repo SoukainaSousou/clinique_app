@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/layout/Layout';
-
+import MedecinProfile from './components/MedecinProfile'; 
 import HomePage from './pages/HomePage';
 import Login from './components/auth/Login';
 import DoctorsPage from './pages/DoctorsPage';
@@ -54,7 +54,6 @@ function App() {
           {/* Public */}
           <Route path="/" element={<HomePage />} />
           <Route path="/medecins" element={<DoctorsPage />} />
-          <Route path="/medecins/:doctorId" element={<DoctorDetail />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/urgences" element={<EmergencyPage />} />
@@ -66,7 +65,7 @@ function App() {
           <Route path="/medecin/patients" element={<Patients />} />
           <Route path="/medecin/consultations/nouvelle/:patientId" element={<AjouterConsultation />}
         />
-
+      
           {/* Admin crud specialite */}
           <Route path="/admin/dashboard" element={<DashboardA />} />
           <Route path="/admin/specialites" element={<SpecialitiesList />} />
@@ -102,7 +101,7 @@ function App() {
 
           {/* Redirection */}
           <Route path="*" element={<Navigate to="/" />} />
-
+           <Route path="/medecins/:id" element={<MedecinProfile />} />  {/* ✅ Correct */}
         </Routes>
       </Layout>
     </AuthProvider>

@@ -321,15 +321,14 @@ const handleShowServiceDetails = async (service) => {
             Notre équipe de professionnels dévoués est à votre service 24h/24.
           </p>
 
-          <div className={styles.heroButtons}>
-            <button className={styles.primaryButton}>
-              Prendre Rendez-vous <ArrowRight size={16} />
-            </button>
-            <button className={styles.secondaryButton}>
-              Urgence <Phone size={16} />
-            </button>
-          </div>
-
+         <div className={styles.heroButtons}>
+  <Link to="/medecins" className={styles.primaryButton}>
+    Prendre Rendez-vous <ArrowRight size={16} />
+  </Link>
+  <Link to="/urgences" className={styles.secondaryButton}>
+    Urgence <Phone size={16} />
+  </Link>
+</div>
           <div className={styles.heroStats}>
   {stats.map((stat, index) => (
     <motion.div
@@ -446,9 +445,13 @@ const handleShowServiceDetails = async (service) => {
                 </div>
                 <div className={styles.doctorInfo}>
                   <h3>Dr {doc.nom || ''} {doc.prenom || ''}</h3>
-                  <p>Spécialité : <p className={styles.doctorSpecialty}>
+                 <p>
+  Spécialité :{" "}
+  <span className={styles.doctorSpecialty}>
     {doc.specialite?.title || "Non spécifiée"}
-  </p></p>
+  </span>
+</p>
+
                   <p>Expériences : {doc.experiences || "Expérience confirmée"}</p>
                   <p>Langues : {doc.languages?.join(", ") || "Français"}</p>
 
@@ -460,8 +463,9 @@ const handleShowServiceDetails = async (service) => {
 
                   <div className={styles.doctorActions}>
                     <Link to={`/medecins/${doc.id}`} className={styles.doctorButton}>
-                      Voir Profil <ArrowRight size={14} />
-                    </Link>
+  Voir Profil <ArrowRight size={14} />
+</Link>
+
                     <button 
                       className={styles.doctorButton}
                       onClick={() => handleTakeAppointment(doc)}
@@ -890,10 +894,10 @@ const handleShowServiceDetails = async (service) => {
                 <h3>⏱️ Horaires de consultation</h3>
                 <div className={styles.serviceSchedule}>
                   <div className={styles.scheduleItem}>
-                    <strong>Lun - Ven:</strong> 8h00 - 20h00
+                    <strong>Lun - Ven:</strong> 9h00 - 17h00
                   </div>
                   <div className={styles.scheduleItem}>
-                    <strong>Samedi:</strong> 8h00 - 14h00
+                    <strong>Samedi:</strong> 9h00 - 11h30
                   </div>
                   <div className={styles.scheduleItem}>
                     <strong>Urgences:</strong> 24h/24

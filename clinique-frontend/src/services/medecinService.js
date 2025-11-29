@@ -11,3 +11,8 @@ export const getDoctors = async () => {
     return [];
   }
 };
+
+export const getDoctorById = async (id) => {
+  const response = await axios.get(`${API_URL}/${id}`);
+  return response.data; // objet médecin détaillé
+};

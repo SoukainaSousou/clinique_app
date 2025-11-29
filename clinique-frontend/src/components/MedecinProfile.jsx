@@ -1,32 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import {
-  Calendar,
-  Search,
-  Filter,
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
+// src/components/MedecinProfile.jsx
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { getDoctorById } from '../services/medecinService';
+import Navbar from './layout/Navbar';
+import { 
+  MapPin, Star, ArrowLeft, Calendar, Mail, Phone, Globe, 
+  ChevronLeft, ChevronRight 
 } from 'lucide-react';
-import Navbar from '../components/layout/Navbar';
-import { getDoctors } from '../services/medecinService';
-import { getSpecialities } from '../services/specialityService'; // Import corrigé
-import styles from '../components/CliniqueInfo.module.css';
+import styles from './MedecinProfile.module.css';
 
 // ** BACKEND **
 import { getPatientByEmail, createPatient } from '../services/patientService';
 import { createAppointment } from '../services/rendezVousService';
 
-const DoctorsPage = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSpecialty, setSelectedSpecialty] = useState('');
-  const [doctors, setDoctors] = useState([]);
-  const [specialties, setSpecialties] = useState([]);
+export default function MedecinProfile() {
+  const { id } = useParams();
+  const [doctor, setDoctor] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  // États pour la modal de rendez-vous
   const [selectedDoctor, setSelectedDoctor] = useState(null);
-  const [step, setStep] = useState(0);
-
+  const [step, setStep] = useState(0); // 0 = aucun, 1 = infos patient, 2 = date/creneau, 3 = confirmation
   const [patientForm, setPatientForm] = useState({
     nom: '',
     prenom: '',
@@ -35,7 +29,6 @@ const DoctorsPage = () => {
     cin: '',
     mot_de_passe: ''
   });
-
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedSlot, setSelectedSlot] = useState('');
   const [occupiedSlots, setOccupiedSlots] = useState([]);
@@ -114,67 +107,6 @@ const DoctorsPage = () => {
     setSelectedSlot('');
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [doctorsData, specialtiesData] = await Promise.all([
-          getDoctors(),
-          getSpecialities() // Utilise votre fonction existante
-        ]);
-        
-        setDoctors(doctorsData);
-        
-        // Créer la liste des spécialités avec "Toutes" en premier
-        const allSpecialties = ['Toutes', ...specialtiesData.map(s => s.title)];
-        setSpecialties(allSpecialties);
-        
-      } catch (error) {
-        console.error('Erreur lors de la récupération des données :', error);
-      }
-    };
-    fetchData();
-  }, []);
-
-  // Charger les créneaux occupés quand la date ou le médecin change
-  useEffect(() => {
-    if (selectedDoctor && selectedDate) {
-      fetchOccupiedSlots(selectedDoctor.id, selectedDate);
-    }
-  }, [selectedDate, selectedDoctor]);
-
-  // Recherche améliorée
-  const filteredDoctors = doctors.filter((doctor) => {
-    const searchLower = searchTerm.toLowerCase();
-    const nom = doctor.nom || '';
-    const prenom = doctor.prenom || '';
-    const specialiteTitle = doctor.specialite?.title || '';
-    const specialiteDescription = doctor.specialite?.description || '';
-
-    // Recherche dans tous les champs pertinents
-    const matchesSearch = 
-      nom.toLowerCase().includes(searchLower) ||
-      prenom.toLowerCase().includes(searchLower) ||
-      specialiteTitle.toLowerCase().includes(searchLower) ||
-      specialiteDescription.toLowerCase().includes(searchLower) ||
-      `${prenom} ${nom}`.toLowerCase().includes(searchLower);
-
-    // Filtre par spécialité
-    const matchesSpecialty = 
-      !selectedSpecialty ||
-      selectedSpecialty === 'Toutes' ||
-      specialiteTitle === selectedSpecialty;
-
-    return matchesSearch && matchesSpecialty;
-  });
-
-  // Grouper par spécialité
-  const doctorsBySpecialty = filteredDoctors.reduce((acc, doctor) => {
-    const specialtyName = doctor.specialite?.title || 'Autres';
-    if (!acc[specialtyName]) acc[specialtyName] = [];
-    acc[specialtyName].push(doctor);
-    return acc;
-  }, {});
-
   const handleTakeAppointment = (doctor) => {
     setSelectedDoctor(doctor);
     setStep(1);
@@ -200,18 +132,15 @@ const DoctorsPage = () => {
     try {
       console.log("🔍 Recherche du patient avec email:", patientForm.email);
       
-      // 1. Chercher le patient par email
       let patient = await getPatientByEmail(patientForm.email);
       console.log("📋 Patient trouvé:", patient);
       
-      // 2. Si pas trouvé, créer le patient avec TOUS les champs
       if (!patient) {
         console.log("➕ Création d'un nouveau patient");
         patient = await createPatient(patientForm);
         console.log("✅ Patient créé avec ID:", patient.id);
       }
 
-      // 3. Préparer les données pour le rendez-vous
       const appointmentData = {
         date: selectedDate.toISOString().split('T')[0],
         slot: selectedSlot,
@@ -220,8 +149,6 @@ const DoctorsPage = () => {
       };
 
       console.log("📅 Données du rendez-vous envoyées:", appointmentData);
-
-      // 4. Créer le rendez-vous
       await createAppointment(appointmentData);
 
       alert("✅ Rendez-vous confirmé avec succès !");
@@ -251,136 +178,222 @@ const DoctorsPage = () => {
     }
   };
 
-  return (
-    <div className={styles.doctorsPage}>
-      <Navbar />
-      <header className={styles.pageHeader}>
-        <div className={styles.pageNav}>
-          <Link to="/" className={styles.backButton}>
-            ← Retour à l'accueil
-          </Link>
-          <h1>Notre Équipe Médicale</h1>
-        </div>
-      </header>
+  // Charger les créneaux occupés quand la date ou le médecin change
+  useEffect(() => {
+    if (selectedDoctor && selectedDate) {
+      fetchOccupiedSlots(selectedDoctor.id, selectedDate);
+    }
+  }, [selectedDate, selectedDoctor]);
 
-      {/* Recherche & filtre */}
-      <div className={styles.filtersSection}>
-        <div className={styles.searchBox}>
-          <Search size={20} />
-          <input
-            type="text"
-            placeholder="Rechercher un médecin, une spécialité..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div className={styles.specialtyFilter}>
-          <Filter size={16} />
-          <select
-            value={selectedSpecialty}
-            onChange={(e) => setSelectedSpecialty(e.target.value)}
-          >
-            {specialties.map((specialty) => (
-              <option key={specialty} value={specialty}>
-                {specialty}
-              </option>
-            ))}
-          </select>
-        </div>
+  useEffect(() => {
+    const fetchDoctor = async () => {
+      try {
+        const data = await getDoctorById(id);
+        setDoctor(data);
+      } catch (error) {
+        console.error('Erreur chargement médecin :', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDoctor();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className={styles.fullPageCenter}>
+        <div className={styles.loader} />
+        <p>Chargement du profil médecin...</p>
       </div>
+    );
+  }
 
-      {/* Résultats de recherche */}
-      {searchTerm && (
-        <div style={{
-          textAlign: 'center',
-          margin: '1rem 0',
-          color: '#666',
-          fontSize: '0.9rem'
-        }}>
-          {filteredDoctors.length} médecin(s) trouvé(s) pour "{searchTerm}"
+  if (!doctor) {
+    return (
+      <div className={styles.fullPageCenter}>
+        <p>Médecin introuvable.</p>
+        <Link to="/medecins" className={styles.backLinkSimple}>
+          <ArrowLeft size={16} /> Retour à la liste des médecins
+        </Link>
+      </div>
+    );
+  }
+
+  // Sécurité sur les champs
+  const user = doctor.user || {};
+  const specialite = doctor.specialite || {};
+
+  const fullName = `Dr ${user.prenom || doctor.prenom || ''} ${user.nom || doctor.nom || ''}`.trim();
+  const email = user.email || doctor.email || null;
+  const phone = user.telephone || user.phone || doctor.telephone || null;
+
+  const langues = doctor.languages
+    ? (Array.isArray(doctor.languages)
+        ? doctor.languages
+        : doctor.languages.split(',').map((l) => l.trim()).filter(Boolean))
+    : [];
+
+  const experienceText =
+    doctor.experiences ||
+    `Médecin expérimenté au sein de la clinique SantéPlus, spécialisé en ${
+      specialite.title || 'médecine générale'
+    } et engagé pour un suivi personnalisé de ses patients.`;
+
+  return (
+    <div className={styles.page}>
+      <Navbar />
+
+      <main className={styles.main}>
+        {/* Ligne retour */}
+        <div className={styles.backRow}>
+          <Link to="/medecins" className={styles.backLink}>
+            <ArrowLeft size={18} />
+            <span>Retour à la liste des médecins</span>
+          </Link>
         </div>
-      )}
 
-      {/* Liste médecins */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '3rem',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '0 2rem'
-      }}>
-        {Object.keys(doctorsBySpecialty).length > 0 ? (
-          Object.entries(doctorsBySpecialty).map(([specialtyName, doctorsList]) => (
-            <div key={specialtyName} style={{width: '100%'}}>
-              <h2 className={styles.specialtyTitle}>{specialtyName}</h2>
-              <div className={styles.specialtyDoctorsRow}>
-                {doctorsList.map((doctor, index) => (
-                  <motion.div
-                    key={doctor.id}
-                    className={styles.doctorCard}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <div className={styles.doctorImage}>
-                      {doctor.image ? (
-                        <img src={doctor.image} alt={`${doctor.nom} ${doctor.prenom}`} />
-                      ) : (
-                        <span>{doctor.specialite?.iconName || '👨‍⚕️'}</span>
-                      )}
-                    </div>
-                    <div className={styles.doctorInfo}>
-                      <h3>Dr. {doctor.nom} {doctor.prenom}</h3>
-                      <p className={styles.specialtyText}>
-                        {doctor.specialite?.description || 'Médecin spécialiste'}
-                      </p>
-                      <div className={styles.doctorActions}>
-                        <Link to={`/medecins/${doctor.id}`} className={styles.detailButton}>
-                          Voir le profil
-                        </Link>
-                        <button
-                          className={styles.detailButton}
-                          onClick={() => handleTakeAppointment(doctor)}
-                        >
-                          <Calendar size={14} /> Prendre RDV
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+        <div className={styles.profileCard}>
+          {/* HEADER : avatar + infos principales */}
+          <div className={styles.header}>
+            <div className={styles.avatarWrapper}>
+              <div className={styles.avatar}>
+                {doctor.image ? (
+                  <img
+                    src={doctor.image}
+                    alt={fullName}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <span className={styles.avatarEmoji}>
+                    {specialite.iconName || '👨‍⚕️'}
+                  </span>
+                )}
+              </div>
+              <div className={styles.specialityChip}>
+                {specialite.title || 'Spécialité non renseignée'}
               </div>
             </div>
-          ))
-        ) : (
-          <div style={{
-            textAlign: 'center',
-            padding: '3rem',
-            color: '#666'
-          }}>
-            <p>Aucun médecin trouvé pour votre recherche.</p>
-            <button 
-              onClick={() => {
-                setSearchTerm('');
-                setSelectedSpecialty('Toutes');
-              }}
-              style={{
-                marginTop: '1rem',
-                padding: '0.5rem 1rem',
-                backgroundColor: '#2563eb',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Voir tous les médecins
-            </button>
-          </div>
-        )}
-      </div>
 
-      {/* Modal prise de rendez-vous - Le reste du code reste identique */}
+            <div className={styles.headerInfo}>
+              <h1 className={styles.name}>{fullName}</h1>
+
+              <p className={styles.location}>
+                <MapPin size={16} />
+                <span>Clinique SantéPlus, Oujda</span>
+              </p>
+
+              <div className={styles.ratingRow}>
+                <div className={styles.stars}>
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={18} fill="#fbbf24" color="#fbbf24" />
+                  ))}
+                </div>
+                <span className={styles.ratingText}>4.9 / 5 • 120 avis</span>
+              </div>
+
+              <div className={styles.headerBadges}>
+                <span className={styles.badge}>+10 ans d'expérience</span>
+                <span className={styles.badge}>
+                  {langues.length > 0 ? `${langues.length} langues parlées` : 'Français'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* BODY : 2 colonnes */}
+          <div className={styles.body}>
+            {/* Colonne gauche */}
+            <div className={styles.leftCol}>
+              {/* À propos */}
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>À propos</h2>
+                <p className={styles.sectionText}>{experienceText}</p>
+              </section>
+
+              {/* Spécialité */}
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>Spécialité</h2>
+                <div className={styles.specialityCard}>
+                  <h3>{specialite.title || 'Non renseignée'}</h3>
+                  <p>
+                    {specialite.description ||
+                      `Consultations, diagnostics et suivi en ${specialite.title || 'médecine générale'} 
+                      avec une approche centrée sur le patient.`}
+                  </p>
+                </div>
+              </section>
+
+              {/* Langues */}
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>Langues parlées</h2>
+                <div className={styles.chipsRow}>
+                  {langues.length > 0 ? (
+                    langues.map((lang) => (
+                      <span key={lang} className={styles.chip}>
+                        <Globe size={14} />
+                        <span>{lang}</span>
+                      </span>
+                    ))
+                  ) : (
+                    <span className={styles.chip}>
+                      <Globe size={14} />
+                      <span>Français</span>
+                    </span>
+                  )}
+                </div>
+              </section>
+            </div>
+
+            {/* Colonne droite */}
+            <div className={styles.rightCol}>
+              {/* Contact rapide */}
+              <section className={`${styles.section} ${styles.sectionCard}`}>
+                <h2 className={styles.sectionTitle}>Contact</h2>
+                <div className={styles.contactItem}>
+                  <Mail size={18} />
+                  <div>
+                    <span className={styles.contactLabel}>Email</span>
+                    <span className={styles.contactValue}>
+                      {email || 'Non renseigné'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className={styles.contactItem}>
+                  <Phone size={18} />
+                  <div>
+                    <span className={styles.contactLabel}>Téléphone</span>
+                    <span className={styles.contactValue}>
+                      {phone || 'Disponible via le secrétariat'}
+                    </span>
+                  </div>
+                </div>
+              </section>
+
+              {/* Bloc prise de rendez-vous */}
+              <section className={`${styles.section} ${styles.sectionCard}`}>
+                <h2 className={styles.sectionTitle}>Prendre rendez-vous</h2>
+                <p className={styles.sectionText}>
+                  Réservez directement un rendez-vous en ligne avec {fullName}.
+                  Choisissez la date et l'horaire qui vous conviennent.
+                </p>
+
+                <button 
+                  className={styles.primaryButton}
+                  onClick={() => handleTakeAppointment(doctor)}
+                >
+                  <Calendar size={18} />
+                  <span>Prendre rendez-vous</span>
+                </button>
+              </section>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Modal prise de rendez-vous */}
       {selectedDoctor && step > 0 && (
         <div className={styles.appointmentOverlay}>
           <div className={styles.appointmentModal}>
@@ -408,17 +421,19 @@ const DoctorsPage = () => {
 
             <h2>Prendre rendez-vous</h2>
 
-            {/* Étape 1 - Informations patient */}
+            {/* Étape 1 */}
             {step === 1 && (
               <div className={styles.stepContent}>
                 <h3>Vos informations</h3>
                 <form onSubmit={(e) => { 
                   e.preventDefault(); 
                   
+                  // Validation avancée
                   const errors = [];
+                  
                   if (!patientForm.nom.trim()) errors.push('Le nom est obligatoire');
                   if (!patientForm.prenom.trim()) errors.push('Le prénom est obligatoire');
-                  if (!patientForm.email.trim()) errors.push('L\'email est obligatoire');
+                  if (!patientForm.email.trim()) errors.push("L'email est obligatoire");
                   if (!patientForm.telephone.trim()) errors.push('Le téléphone est obligatoire');
                   if (!patientForm.cin.trim()) errors.push('Le CIN est obligatoire');
                   if (!patientForm.mot_de_passe.trim()) {
@@ -507,7 +522,8 @@ const DoctorsPage = () => {
                 </form>
               </div>
             )}
-            {/* Étape 2 - Sélection date/créneau */}
+
+            {/* Étape 2 */}
             {step === 2 && (
               <div className={styles.stepContent}>
                 <div className={styles.appointmentBody}>
@@ -603,7 +619,7 @@ const DoctorsPage = () => {
               </div>
             )}
 
-            {/* Étape 3 - Confirmation */}
+            {/* Étape 3 */}
             {step === 3 && (
               <div className={styles.stepContent}>
                 <h3>Confirmation du rendez-vous</h3>
@@ -612,11 +628,11 @@ const DoctorsPage = () => {
                 <p><strong>Patient :</strong> {patientForm.prenom} {patientForm.nom}</p>
                 <p><strong>Email :</strong> {patientForm.email}</p>
                 <p><strong>Téléphone :</strong> {patientForm.telephone}</p>
-                {patientForm.cin && <p><strong>CIN :</strong> {patientForm.cin}</p>}
-                {patientForm.mot_de_passe && <p><strong>Mot de passe :</strong> ••••••••</p>}
+                <p><strong>CIN :</strong> {patientForm.cin}</p>
+                <p><strong>Mot de passe :</strong> ••••••••</p>
                 <p><strong>Date :</strong> {selectedDate.toLocaleDateString('fr-FR')}</p>
                 <p><strong>Créneau :</strong> {selectedSlot}</p>
-                
+
                 <div className={styles.stepActions}>
                   <button type="button" onClick={()=>setStep(2)}>⬅ Modifier</button>
                   <button type="button" onClick={confirmAppointment}>
@@ -625,12 +641,9 @@ const DoctorsPage = () => {
                 </div>
               </div>
             )}
-
           </div>
         </div>
       )}
     </div>
   );
-};
-
-export default DoctorsPage;
+}
