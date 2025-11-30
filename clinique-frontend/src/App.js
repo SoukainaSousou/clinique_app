@@ -37,6 +37,7 @@ import StaffUpdate from "./pages/admin/staff/StaffUpdate";
 // NOUVEAU : Import des composants Patient
 import PatientDashboard from './pages/patient/PatientDashboard';
 import PatientRendezVous from './pages/patient/PatientRendezVous';
+import PatientProfil from './pages/patient/PatientProfil';
 
 import MessagesList from './pages/admin/messages/MessagesList';
 import MessageDetail from './pages/admin/messages/MessageDetail';
@@ -93,6 +94,7 @@ function App() {
           {/* NOUVEAU : Patient */}
           <Route path="/patient/dashboard" element={<PatientDashboard />} />
           <Route path="/patient/rendezvous" element={<PatientRendezVous />} />
+          <Route path="/patient/profil" element={<PatientProfil />} />
 
 
           <Route path="/admin/messages" element={<MessagesList />} />
