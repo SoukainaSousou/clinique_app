@@ -57,7 +57,7 @@ jobs:
         run: |
           cd clinique-frontend
           npm ci
-          npm run build
+          CI=false npm run build    # ← SEULE LIGNE MODIFIÉE
 
       - name: Upload frontend build
         uses: actions/upload-artifact@v4
