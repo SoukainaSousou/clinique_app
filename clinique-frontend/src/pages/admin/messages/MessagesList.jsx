@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Search, Filter, Reply, Trash2, Eye, Clock, CheckCircle } from 'lucide-react';
+import { Mail, Search, Reply, Trash2, Eye, Clock, CheckCircle } from 'lucide-react';
 
 // Layout
 import Sidebar from '../../../components/SidebarA';

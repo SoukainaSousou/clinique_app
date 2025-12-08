@@ -1,10 +1,17 @@
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
 } from "recharts";
 import StatCard from "../../components/StatCard";
 import { User, CalendarDays, FileText, Activity } from "lucide-react";
 import Sidebar from "../../components/SidebarM";
 import TopBar from "../../components/TopBar";
+import { Link } from "react-router-dom"; // ← Ajout de l'import
 
 const data = [
   { name: "Lun", patients: 12 },
@@ -43,13 +50,21 @@ const MedecinDashboard = () => {
               icon={<CalendarDays size={24} />}
               color="green"
             />
-            <StatCard
-              title="Dossiers Médicaux"
-              value="245"
-              subtitle="Mises à jour récentes"
-              icon={<FileText size={24} />}
-              color="purple"
-            />
+            {/* --- Carte cliquable vers les dossiers médicaux --- */}
+            <div
+              onClick={() => {
+                window.location.href = "/medecin/dossiers-medicaux";
+              }}
+              className="block cursor-pointer"
+            >
+              <StatCard
+                title="Dossiers Médicaux"
+                value="245"
+                subtitle="Mises à jour récentes"
+                icon={<FileText size={24} />}
+                color="purple"
+              />
+            </div>
             <StatCard
               title="Consultations Actives"
               value="5"
@@ -63,7 +78,9 @@ const MedecinDashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* --- Graphique patients --- */}
             <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 text-gray-700">Patients vus par jour</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-700">
+                Patients vus par jour
+              </h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={data}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -76,27 +93,37 @@ const MedecinDashboard = () => {
                       borderRadius: "8px",
                     }}
                   />
-                  <Bar dataKey="patients" fill="#60a5fa" radius={[4, 4, 0, 0]} />
+                  <Bar
+                    dataKey="patients"
+                    fill="#60a5fa"
+                    radius={[4, 4, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
             {/* --- Statistique spéciale 1 --- */}
             <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 text-gray-700">Taux de Satisfaction</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-700">
+                Taux de Satisfaction
+              </h3>
               <div className="flex justify-center items-center h-64">
                 <div className="text-center">
                   <div className="w-24 h-24 mx-auto bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
                     89%
                   </div>
-                  <p className="mt-2 text-sm text-gray-600">Patients satisfaits</p>
+                  <p className="mt-2 text-sm text-gray-600">
+                    Patients satisfaits
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* --- Statistique spéciale 2 --- */}
             <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h3 className="text-lg font-semibold mb-4 text-gray-700">Consultations terminées</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-700">
+                Consultations terminées
+              </h3>
               <div className="flex justify-center items-center h-64">
                 <div className="text-center">
                   <div className="w-24 h-24 mx-auto bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl">

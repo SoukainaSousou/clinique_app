@@ -11,7 +11,6 @@ import {
   Microscope,
   Calendar,
   ArrowRight,
-  MapPin,
   ChevronLeft,
   ChevronRight,
   User,
@@ -55,7 +54,6 @@ const ServicesPage = () => {
   const [selectedSlot, setSelectedSlot] = useState('');
   const [occupiedSlots, setOccupiedSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
-  const [doctors, setDoctors] = useState([]);
 
   const frenchDays = ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'];
   const frenchMonths = [

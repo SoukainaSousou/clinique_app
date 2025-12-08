@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 import MedecinProfile from './components/MedecinProfile'; 
@@ -14,6 +14,8 @@ import DoctorDetail from './components/DoctorDetail';
 import DashboardM from "./pages/medecin/MedecinDashboard";
 import Rendezvous from "./pages/medecin/RendezvousM";
 import Patients from "./pages/medecin/PatientsM";
+import DossierPatientDetail from "./pages/medecin/DossierPatientDetail";
+import DossierMedicalPage from "./pages/medecin/DossierMedicalPage";
 import AjouterConsultation from "./pages/medecin/AjouterConsultation";
 
 import DashboardS from "./pages/secreitaire/SecretaireDashboard";
@@ -48,6 +50,7 @@ import './App.css';
 
 function App() {
   return (
+    
     <AuthProvider>
       <Layout>
         <Routes>
@@ -64,6 +67,8 @@ function App() {
           <Route path="/medecin/dashboard" element={<DashboardM />} />
           <Route path="/medecin/rendezvous" element={<Rendezvous />} />
           <Route path="/medecin/patients" element={<Patients />} />
+          <Route path="/medecin/dossiers-medicaux" element={<DossierMedicalPage />} />
+          <Route path="/medecin/dossiers-medicaux/:id" element={<DossierPatientDetail />} />
           <Route path="/medecin/consultations/nouvelle/:patientId" element={<AjouterConsultation />}
         />
       

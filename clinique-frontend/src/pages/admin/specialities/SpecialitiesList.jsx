@@ -1,5 +1,3 @@
-// src/pages/admin/Specialities/SpecialitiesList.jsx
-
 import React, { useEffect, useState } from "react";
 import { getSpecialities, deleteSpeciality } from "../../../services/specialityService";
 import { Link } from "react-router-dom";
@@ -7,7 +5,6 @@ import { Link } from "react-router-dom";
 // ⚠️ Import du layout
 import Sidebar from "../../../components/SidebarA";
 import TopBar from "../../../components/TopBar";
-import { Edit, Trash2 } from "lucide-react";
 
 function SpecialitiesList() {
     const [specialities, setSpecialities] = useState([]);

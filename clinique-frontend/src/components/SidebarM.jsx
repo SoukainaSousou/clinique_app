@@ -48,7 +48,7 @@ const Sidebar = () => {
             </li>
             <li>
               <Link
-                to="/medecin/dossiers"
+                to="/medecin/dossiers-medicaux"
                 className="flex items-center gap-3 px-6 py-2.5 hover:bg-blue-800 transition rounded-lg"
               >
                 <ClipboardList size={20} />
