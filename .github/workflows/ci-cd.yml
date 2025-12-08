@@ -46,7 +46,7 @@ jobs:
       - name: Build & Test Backend
         run: |
           cd clinique
-          ./mvnw verify -B --file pom.xml
+          mvn verify -B --file pom.xml
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/clinique_db?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
 
