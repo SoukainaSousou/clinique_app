@@ -1,7 +1,11 @@
 package com.example.clinique.Controller;
 
+import com.example.clinique.dto.ConsultationDto; // ← Important
 import com.example.clinique.entities.Consultation;
+import com.example.clinique.entities.Patient;
 import com.example.clinique.repository.ConsultationRepository;
+import com.example.clinique.repository.PatientRepository; // ← Vous l'utilisez mais ne l'importiez pas
+import java.util.UUID; 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +19,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map; // ← Pour Map
+import java.util.Optional; // ← Pour Optional
+
+// Pas besoin de @Query ici — c'est pour les repositories
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -25,10 +33,52 @@ public class ConsultationController {
 
     @Autowired
     private ConsultationRepository consultationRepository;
+    @Autowired
+    private PatientRepository patientRepository; // ← Vous l'utilisez mais ne l'injectiez pas
 
     @Value("${app.upload.dir:uploads/}")
     private String uploadDir;
 
+    @GetMapping("/patients/par-medecin/{medecinId}")
+    public ResponseEntity<List<Patient>> getPatientsByMedecinId(@PathVariable Integer medecinId) {
+        List<Patient> patients = consultationRepository.findPatientsByMedecinId(medecinId);
+        return ResponseEntity.ok(patients);
+    }
+
+
+    @GetMapping("/medecin-id-par-user/{userId}")
+    public ResponseEntity<Integer> getMedecinIdByUserId(@PathVariable Integer userId) {
+        Integer medecinId = consultationRepository.findMedecinIdByUserId(userId);
+        if (medecinId == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(medecinId);
+    }
+
+@GetMapping("/dossier-patient/{patientId}")
+public ResponseEntity<Map<String, Object>> getDossierPatient(@PathVariable Integer patientId) {
+    try {
+        // 1. Récupérer le patient
+        Optional<Patient> patientOpt = patientRepository.findById(patientId);
+        if (patientOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Patient patient = patientOpt.get();
+
+        // 2. Récupérer les consultations via le repository (la requête est DANS le repository)
+        List<ConsultationDto> consultations = consultationRepository.findConsultationsWithMedecinByPatientId(patientId);
+
+        // 3. Construire la réponse
+        Map<String, Object> response = new HashMap<>();
+        response.put("patient", patient);
+        response.put("consultations", consultations);
+
+        return ResponseEntity.ok(response);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(500).build();
+    }
+}
     @PostMapping("/nouvelle")
     public ResponseEntity<?> ajouterConsultation(
             @RequestParam Integer patientId,

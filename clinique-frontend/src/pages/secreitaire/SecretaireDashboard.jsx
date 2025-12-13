@@ -194,10 +194,10 @@ export default function Dashboard() {
     );
   };
 
-  const getColorForIndex = (index) => {
+  /*const getColorForIndex = (index) => {
     const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#84CC16'];
     return colors[index % colors.length];
-  };
+  };*/
 
   // Vérifier si on est sur la page d'accueil du dashboard
   const isDashboardHome = 

@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 
 export default function PatientAdminS() {
-  const { id } = useParams();
 
   const patient = {
     nom:"Dupont",
