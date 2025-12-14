@@ -1,15 +1,12 @@
 package com.example.clinique.Controller;
 
 import com.example.clinique.dto.MedecinRequest;
-import com.example.clinique.entities.Medecin;
-import com.example.clinique.entities.Speciality;
 import com.example.clinique.entities.User;
 import com.example.clinique.services.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController

@@ -26,7 +26,7 @@ public class ConsultationDto {
         this.medecinPrenom = medecinPrenom;
         this.specialite = specialite;
     }
-
+ 
     // Getters
     public Integer getId() { return id; }
     public LocalDateTime getDateConsultation() { return dateConsultation; }

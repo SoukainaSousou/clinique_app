@@ -1,7 +1,7 @@
 package com.example.clinique.dto;
 
 public class MedecinRequest {
-
+    private Long userId;
     private String nom;
     private String prenom;
     private String email;
@@ -11,6 +11,9 @@ public class MedecinRequest {
     private String languages;
     private Long specialiteId;
 
+
+    public Long getUserId() { return userId; }
+public void setUserId(Long userId) { this.userId = userId; }
     // Getters et setters
     public String getNom() { return nom; }
     public void setNom(String nom) { this.nom = nom; }

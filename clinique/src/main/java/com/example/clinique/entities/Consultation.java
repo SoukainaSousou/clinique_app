@@ -2,7 +2,7 @@
 
 package com.example.clinique.entities;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
