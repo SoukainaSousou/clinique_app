@@ -1,14 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
-import { CalendarDays, Users, User, LogOut, LayoutDashboard } from "lucide-react";
+import { CalendarDays, Users, User, LogOut, Stethoscope, LayoutDashboard } from "lucide-react";
 
 export default function SidebarS() {
   const { pathname } = useLocation();
 
-  const links = [
-    { to: "/secretaire/dashboard", label: "Tableau de bord", icon: <LayoutDashboard size={20} /> },
-    { to: "/secretaire/dashboard/patients", label: "Patients", icon: <Users size={20} /> },
-    { to: "/secretaire/dashboard/appointments", label: "Rendez-vous", icon: <CalendarDays size={20} /> },
+    const links = [
+      { to: ".", label: "Tableau de bord", icon: <LayoutDashboard size={20} /> },
+      { to: "patients", label: "Patients", icon: <Users size={20} /> },
+      { to: "appointments", label: "Rendez-vous", icon: <CalendarDays size={20} /> },
+      { to: "dossier-medical", label: "Dossier Médicaux", icon: <Stethoscope size={20} /> },
   ];
+
 
   return (
     <aside className="w-64 h-screen bg-gradient-to-b from-blue-700 to-blue-900 text-white flex flex-col justify-between shadow-xl">
@@ -25,7 +27,7 @@ export default function SidebarS() {
         </div>
 
         {/* ---- MENU ---- */}
-        <nav className="mt-4">
+        <nav className="mt-4 flex-1 overflow-y-auto">
           <ul className="space-y-1">
             {links.map((l) => (
               <li key={l.to}>

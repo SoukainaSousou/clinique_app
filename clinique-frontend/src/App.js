@@ -26,6 +26,8 @@ import AppointmentsListS from "./pages/secreitaire/appointments/AppointmentsList
 import AddAppointmentS from "./pages/secreitaire/appointments/AddAppointmentS";
 import EditAppointmentS from "./pages/secreitaire/appointments/EditAppointmentS";
 import PatientAdminS from "./pages/secreitaire/PatientAdminS";
+import DossierMedicalListS from './pages/secreitaire/dossier-medical/DossierMedicalListS';
+import DossierMedicalDetailS from './pages/secreitaire/dossier-medical/DossierMedicalDetailS';
 
 import DashboardA from './pages/admin/AdminDashboard';
 import SpecialitiesList from './pages/admin/specialities/SpecialitiesList';
@@ -44,6 +46,7 @@ import PatientProfil from './pages/patient/PatientProfil';
 import MessagesList from './pages/admin/messages/MessagesList';
 import MessageDetail from './pages/admin/messages/MessageDetail';
 import ReplyMessage from './pages/admin/messages/ReplyMessage';
+
 
 import './styles/globals.css';
 import './App.css';
@@ -94,6 +97,8 @@ function App() {
             <Route path="appointments/edit/:id" element={<EditAppointmentS />} />
 
             <Route path="patient-admin/:id" element={<PatientAdminS />} />
+            <Route path="dossier-medical" element={<DossierMedicalListS />} />
+            <Route path="dossier-medical/:id" element={<DossierMedicalDetailS />} />
           </Route>
 
           {/* NOUVEAU : Patient */}

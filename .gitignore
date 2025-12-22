@@ -14,3 +14,16 @@ clinique/.settings
 # Système
 .DS_Store
 Thumbs.db
+
+# ========================
+# Uploads (DONNÉES PATIENTS)
+# ========================
+uploads/
+uploads/**
+
+# ========================
+# Terraform (CRITIQUE)
+# ========================
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
