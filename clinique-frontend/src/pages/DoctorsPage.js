@@ -323,13 +323,14 @@ const DoctorsPage = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <div className={styles.doctorImage}>
-                      {doctor.image ? (
-                        <img src={doctor.image} alt={`${doctor.nom} ${doctor.prenom}`} />
-                      ) : (
-                        <span>{doctor.specialite?.iconName || '👨‍⚕️'}</span>
-                      )}
-                    </div>
+                   <div className={styles.doctorImage}>
+  {doctor.image ? (
+    <img src={doctor.image} alt={`Dr ${doctor.nom} ${doctor.prenom}`} />
+  ) : (
+    <span style={{ fontSize: '24px' }}>👨‍⚕️</span>
+  )}
+</div>
+
                     <div className={styles.doctorInfo}>
                       <h3>Dr. {doctor.nom} {doctor.prenom}</h3>
                       <p className={styles.specialtyText}>
@@ -390,15 +391,13 @@ const DoctorsPage = () => {
 
             <div className={styles.doctorHeaderCard}>
               <div className={styles.doctorHeaderAvatar}>
-                {selectedDoctor.image ? (
-                  <img
-                    src={selectedDoctor.image}
-                    alt={`${selectedDoctor.nom} ${selectedDoctor.prenom}`}
-                  />
-                ) : (
-                  <span>{selectedDoctor.specialite?.iconName || '👨‍⚕️'}</span>
-                )}
-              </div>
+  {selectedDoctor.image ? (
+    <img src={selectedDoctor.image} alt={`Dr ${selectedDoctor.nom} ${selectedDoctor.prenom}`} />
+  ) : (
+    <span style={{ fontSize: '32px' }}>👨‍⚕️</span>
+  )}
+</div>
+
               <div className={styles.doctorHeaderInfo}>
                 <h3>Dr {selectedDoctor.nom} {selectedDoctor.prenom}</h3>
                 <p className={styles.headerSpecialty}>{selectedDoctor.specialite?.title}</p>

@@ -5,8 +5,10 @@ import {
   Stethoscope, Users, ClipboardList, Phone,
   Calendar, Clock, MapPin, ArrowRight,
   Heart, Eye, Brain, Star, ChevronDown,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight,
+  Baby, Microscope
 } from 'lucide-react';
+
 import { Link } from 'react-router-dom';
 import styles from './CliniqueInfo.module.css';
 import { getDoctors } from '../services/medecinService';
@@ -23,13 +25,14 @@ const CustomIcons = {
 };
 
 const iconMap = {
-  Heart: <Heart size={24} />,
-  Eye: <Eye size={24} />,
-  Brain: <Brain size={24} />,
-  Stethoscope: <Stethoscope size={24} />,
-  Baby: <CustomIcons.Pediatrie />,
-  Microscope: <CustomIcons.Analyses />,
+  heart: <Heart size={32} />,
+  skin: <Eye size={32} />,
+  child: <Baby size={32} />,
+  brain: <Brain size={32} />,
+  microscope: <Microscope size={32} />,
+  default: <Stethoscope size={32} />,
 };
+
 
 export default function CliniqueInfo() {
   // TOUS LES USESTATE DOIVENT ÊTRE À L'INTÉRIEUR DU COMPOSANT
@@ -399,7 +402,7 @@ const handleShowServiceDetails = async (service) => {
                 whileHover={{ scale: 1.05, y: -5 }}
               >
                 <div className={styles.serviceIcon}>
-                  {iconMap[service.iconName] || <Stethoscope size={24} />}
+                 {iconMap[service.iconName?.toLowerCase()] || iconMap.default}
                 </div>
                 <h3 className={styles.serviceTitle}>{service.title}</h3>
                 <p className={styles.serviceDescription}>{service.description}</p>
@@ -436,13 +439,14 @@ const handleShowServiceDetails = async (service) => {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <div className={styles.doctorImage}>
-                  {doc.image ? (
-                    <img src={doc.image} alt={`Dr ${doc.user?.nom || ''} ${doc.user?.prenom || ''}`} />
-                  ) : (
-                    <span>{doc.specialite?.iconName || "👨‍⚕️"}</span>
-                  )}
-                </div>
+               <div className={styles.doctorImage}>
+  {doc.image ? (
+    <img src={doc.image} alt={`Dr ${doc.nom} ${doc.prenom}`} />
+  ) : (
+    <span style={{ fontSize: '24px' }}>👨‍⚕️</span>
+  )}
+</div>
+
                 <div className={styles.doctorInfo}>
                   <h3>Dr {doc.nom || ''} {doc.prenom || ''}</h3>
                  <p>
@@ -593,15 +597,13 @@ const handleShowServiceDetails = async (service) => {
 
             <div className={styles.doctorHeaderCard}>
               <div className={styles.doctorHeaderAvatar}>
-                {selectedDoctor.image ? (
-                  <img
-                    src={selectedDoctor.image}
-                    alt={`Dr ${selectedDoctor.user?.nom || ''} ${selectedDoctor.user?.prenom || ''}`}
-                  />
-                ) : (
-                  <span>{selectedDoctor.specialite?.iconName || '👨‍⚕️'}</span>
-                )}
-              </div>
+  {selectedDoctor.image ? (
+    <img src={selectedDoctor.image} alt={`Dr ${selectedDoctor.nom} ${selectedDoctor.prenom}`} />
+  ) : (
+    <span style={{ fontSize: '32px' }}>👨‍⚕️</span>
+  )}
+</div>
+
              {/* Dans la modal de rendez-vous */}
 <div className={styles.doctorHeaderInfo}>
   <h3>Dr {selectedDoctor.nom || ''} {selectedDoctor.prenom || ''}</h3>

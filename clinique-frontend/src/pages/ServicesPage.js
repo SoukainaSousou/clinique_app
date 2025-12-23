@@ -24,13 +24,14 @@ import { getDoctors } from '../services/medecinService';
 
 // Mapping des icônes : clé = iconName (venant de la BDD), valeur = composant Lucide
 const iconMap = {
-  Heart: <Heart size={32} />,
-  Eye: <Eye size={32} />,
-  Brain: <Brain size={32} />,
-  Stethoscope: <Stethoscope size={32} />,
-  Baby: <Baby size={32} />,
-  Microscope: <Microscope size={32} />,
+  heart: <Heart size={32} />,
+  skin: <Eye size={32} />,
+  child: <Baby size={32} />,
+  brain: <Brain size={32} />,
+  microscope: <Microscope size={32} />,
+  default: <Stethoscope size={32} />,
 };
+
 
 const ServicesPage = () => {
   const [services, setServices] = useState([]);
@@ -343,7 +344,7 @@ const ServicesPage = () => {
                 color: '#2563eb',
                 marginBottom: '1.5rem',
               }}>
-                {iconMap[service.iconName] || iconMap.Stethoscope}
+               {iconMap[service.iconName?.toLowerCase()] || iconMap.default}
               </div>
 
               <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem' }}>
@@ -498,26 +499,27 @@ const ServicesPage = () => {
                       onClick={() => handleSelectDoctor(doctor)}
                     >
                       <div style={{
-                        width: '60px',
-                        height: '60px',
-                        borderRadius: '50%',
-                        background: '#dbeafe',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#2563eb',
-                        flexShrink: 0
-                      }}>
-                        {doctor.image ? (
-                          <img 
-                            src={doctor.image} 
-                            alt={`${doctor.nom} ${doctor.prenom}`}
-                            style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-                          />
-                        ) : (
-                          <User size={24} />
-                        )}
-                      </div>
+  width: '60px',
+  height: '60px',
+  borderRadius: '50%',
+  background: '#dbeafe',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: '#2563eb',
+  flexShrink: 0
+}}>
+  {doctor.image ? (
+    <img 
+      src={doctor.image} 
+      alt={`${doctor.nom} ${doctor.prenom}`}
+      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+    />
+  ) : (
+    <span style={{ fontSize: '24px' }}>👨‍⚕️</span>
+  )}
+</div>
+
                       <div style={{ flex: 1 }}>
                         <h3 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>
                           Dr {doctor.nom} {doctor.prenom}
@@ -577,15 +579,16 @@ const ServicesPage = () => {
         justifyContent: 'center',
         color: '#2563eb'
       }}>
-        {selectedDoctor.image ? (
-          <img 
-            src={selectedDoctor.image} 
-            alt={`${selectedDoctor.nom} ${selectedDoctor.prenom}`}
-            style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-          />
-        ) : (
-          <User size={24} />
-        )}
+       {selectedDoctor.image ? (
+  <img 
+    src={selectedDoctor.image} 
+    alt={`${selectedDoctor.nom} ${selectedDoctor.prenom}`}
+    style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+  />
+) : (
+  <span style={{ fontSize: '32px' }}>👨‍⚕️</span>
+)}
+
       </div>
       <div>
         <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>
@@ -809,15 +812,16 @@ const ServicesPage = () => {
                     justifyContent: 'center',
                     color: '#2563eb'
                   }}>
-                    {selectedDoctor.image ? (
-                      <img 
-                        src={selectedDoctor.image} 
-                        alt={`${selectedDoctor.nom} ${selectedDoctor.prenom}`}
-                        style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <User size={24} />
-                    )}
+                   {selectedDoctor.image ? (
+  <img 
+    src={selectedDoctor.image} 
+    alt={`${selectedDoctor.nom} ${selectedDoctor.prenom}`}
+    style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+  />
+) : (
+  <span style={{ fontSize: '32px' }}>👨‍⚕️</span>
+)}
+
                   </div>
                   <div>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>
