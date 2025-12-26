@@ -1,26 +1,31 @@
 // src/components/TopBar.jsx
-import { Search, Bell, MessageCircle, User } from 'lucide-react';
+import { LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const TopBar = () => {
-  return (
-    <header className="flex items-center justify-between h-16 px-6 bg-white shadow-sm">
-      <div className="flex items-center gap-4">
-        <div className="relative w-80">
-          
-        </div>
-      </div>
+  const navigate = useNavigate();
 
-      <div className="flex items-center gap-4">
-        <div className="relative">
-          <Bell size={20} className="text-gray-600 cursor-pointer" />
-          <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">3</span>
-        </div>
-        <MessageCircle size={20} className="text-gray-600 cursor-pointer" />
-        <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center cursor-pointer">
-          <User size={16} className="text-gray-700" />
-        </div>
-      </div>
-    </header>
+  const handleLogout = () => {
+    // Logique de déconnexion
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Redirection vers login
+    navigate('/login');
+  };
+
+  return (
+    <header className="flex items-center justify-end h-16 px-6 bg-white border-b">
+  <div className="flex items-center gap-4">
+    <button
+      onClick={handleLogout}
+      className="p-2 text-white-500 hover:text-red-600 hover:bg-red-50 rounded-full transition"
+      title="Se déconnecter"
+    >
+      <LogOut size={20} />
+    </button>
+  </div>
+</header>
   );
 };
 

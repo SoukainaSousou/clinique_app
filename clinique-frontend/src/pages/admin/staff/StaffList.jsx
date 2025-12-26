@@ -5,6 +5,9 @@ import { Link } from "react-router-dom";
 import Sidebar from "../../../components/SidebarA";
 import TopBar from "../../../components/TopBar";
 
+// Ajoutez cette importation pour le tracker
+import { trackUserAction, ActivityType } from "../../../services/activityTracker";
+
 const StaffList = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -32,9 +35,42 @@ const StaffList = () => {
     }, []);
 
     const handleDelete = async (id) => {
-        if (window.confirm("Voulez-vous vraiment supprimer cet utilisateur ?")) {
+        // Trouver l'utilisateur avant de le supprimer pour le tracking
+        const userToDelete = users.find(u => u.id === id);
+        
+        if (!userToDelete) {
+            alert("Utilisateur non trouvé");
+            return;
+        }
+        
+        const confirmMessage = `Voulez-vous vraiment supprimer l'utilisateur ${userToDelete.prenom} ${userToDelete.nom} (${userToDelete.role}) ?`;
+        
+        if (window.confirm(confirmMessage)) {
             try {
                 console.log("Tentative de suppression user ID:", id);
+                
+                // Récupérer l'utilisateur actuel (admin) pour le tracking
+                const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+                
+                // TRACKER L'ACTIVITÉ AVANT LA SUPPRESSION - Ajoutez cette partie
+                trackUserAction({
+                    type: ActivityType.USER_DELETE,
+                    title: `${userToDelete.role === 'medecin' ? 'Médecin' : 'Utilisateur'} supprimé`,
+                    description: `${userToDelete.prenom} ${userToDelete.nom} a été supprimé du système`,
+                    details: `Email: ${userToDelete.email}, Rôle: ${userToDelete.role}`,
+                    userId: currentUser.id || 'admin',
+                    userName: currentUser.name || 'Administrateur',
+                    userRole: currentUser.role || 'admin',
+                    entityId: id,
+                    entityName: `${userToDelete.prenom} ${userToDelete.nom}`,
+                    metadata: {
+                        email: userToDelete.email,
+                        role: userToDelete.role,
+                        deletedAt: new Date().toISOString()
+                    }
+                });
+                
+                // Exécuter la suppression
                 const response = await deleteUser(id);
                 console.log("Réponse suppression:", response);
                 
@@ -52,21 +88,29 @@ const StaffList = () => {
                 let errorMessage = "Erreur lors de la suppression";
                 
                 if (err.response) {
-                    // Erreur du serveur avec réponse
                     errorMessage = err.response.data || 
                                  err.response.data?.message || 
                                  `Erreur ${err.response.status}: ${err.response.statusText}`;
                 } else if (err.request) {
-                    // Erreur de réseau
                     errorMessage = "Erreur de connexion au serveur";
                 } else {
-                    // Autre erreur
                     errorMessage = err.message || "Erreur inconnue";
                 }
                 
                 alert(errorMessage);
             }
         }
+    };
+
+    // Fonction pour obtenir le label du rôle
+    const getRoleLabel = (role) => {
+        const roles = {
+            admin: 'Administrateur',
+            medecin: 'Médecin',
+            secretaire: 'Secrétaire',
+            patient: 'Patient'
+        };
+        return roles[role] || role;
     };
 
     return (
@@ -103,7 +147,7 @@ const StaffList = () => {
                                         <td className="px-4 py-2 border">{user.nom}</td>
                                         <td className="px-4 py-2 border">{user.prenom}</td>
                                         <td className="px-4 py-2 border">{user.email}</td>
-                                        <td className="px-4 py-2 border capitalize">{user.role}</td>
+                                        <td className="px-4 py-2 border capitalize">{getRoleLabel(user.role)}</td>
                                         <td className="px-4 py-2 border flex gap-2">
                                             <Link
                                                 to={`/admin/staff/update/${user.id}`}

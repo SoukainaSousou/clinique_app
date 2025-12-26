@@ -43,10 +43,8 @@ import PatientDashboard from './pages/patient/PatientDashboard';
 import PatientRendezVous from './pages/patient/PatientRendezVous';
 import PatientProfil from './pages/patient/PatientProfil';
 
-import MessagesList from './pages/admin/messages/MessagesList';
-import MessageDetail from './pages/admin/messages/MessageDetail';
-import ReplyMessage from './pages/admin/messages/ReplyMessage';
-
+import Statistiques from './pages/admin/statistiques';
+import Activites from './pages/admin/Activites';
 
 import './styles/globals.css';
 import './App.css';
@@ -107,13 +105,12 @@ function App() {
           <Route path="/patient/profil" element={<PatientProfil />} />
 
 
-          <Route path="/admin/messages" element={<MessagesList />} />
-          <Route path="/admin/messages/:id" element={<MessageDetail />} />
-          <Route path="/admin/messages/:id/reply" element={<ReplyMessage />} />
-
           {/* Redirection */}
           <Route path="*" element={<Navigate to="/" />} />
            <Route path="/medecins/:id" element={<MedecinProfile />} />  {/* ✅ Correct */}
+
+           <Route path="/admin/statistiques" element={<Statistiques />} />
+           <Route path="/admin/activites" element={<Activites />} />
         </Routes>
       </Layout>
     </AuthProvider>

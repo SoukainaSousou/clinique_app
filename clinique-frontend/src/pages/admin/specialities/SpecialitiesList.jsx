@@ -6,6 +6,9 @@ import { Link } from "react-router-dom";
 import Sidebar from "../../../components/SidebarA";
 import TopBar from "../../../components/TopBar";
 
+// Ajoutez cette importation pour le tracker
+import { trackSpecialiteAction } from "../../../services/activityTracker";
+
 function SpecialitiesList() {
     const [specialities, setSpecialities] = useState([]);
 
@@ -14,9 +17,31 @@ function SpecialitiesList() {
     }, []);
 
     const handleDelete = (id) => {
-        deleteSpeciality(id).then(() => {
-            setSpecialities(specialities.filter(s => s.id !== id));
-        });
+        // Trouver la spécialité avant de la supprimer pour le tracking
+        const specialiteToDelete = specialities.find(s => s.id === id);
+        
+        if (specialiteToDelete) {
+            // Demander confirmation
+            if (window.confirm(`Voulez-vous vraiment supprimer la spécialité "${specialiteToDelete.title}" ?`)) {
+                // Récupérer l'utilisateur actuel
+                const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+                
+                // TRACKER L'ACTIVITÉ AVANT LA SUPPRESSION - Ajoutez cette ligne
+                trackSpecialiteAction('delete', {
+                    id: id,
+                    title: specialiteToDelete.title,
+                    description: specialiteToDelete.description
+                }, currentUser.id || 'admin', currentUser.name || 'Administrateur');
+                
+                // Supprimer la spécialité
+                deleteSpeciality(id).then(() => {
+                    setSpecialities(specialities.filter(s => s.id !== id));
+                }).catch(error => {
+                    console.error("Erreur lors de la suppression:", error);
+                    alert("Erreur lors de la suppression de la spécialité.");
+                });
+            }
+        }
     };
 
     return (
@@ -60,7 +85,6 @@ function SpecialitiesList() {
                                             <Link
                                                 to={`/admin/specialites/edit/${s.id}`}
                                                 className="bg-yellow-400 px-2 py-1 rounded hover:bg-yellow-500"
-
                                             >
                                                 Modifier
                                             </Link>
@@ -69,19 +93,15 @@ function SpecialitiesList() {
                                             <button
                                                 onClick={() => handleDelete(s.id)}
                                                 className="bg-red-500 px-2 py-1 rounded hover:bg-red-600 text-white"
-
                                             >
                                                 Supprimer
                                             </button>
                                         </td>
-
                                     </tr>
                                 ))}
                             </tbody>
-
                         </table>
                     </div>
-
                 </main>
             </div>
         </div>

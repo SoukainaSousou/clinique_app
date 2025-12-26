@@ -1,6 +1,16 @@
 // src/components/Sidebar.jsx
 import { Link } from 'react-router-dom';
-import { Home, Users, Calendar, Settings, BarChart2, MessageSquare, LogOut } from 'lucide-react';
+import { 
+  Home, 
+  Users, 
+  Calendar, 
+  Settings, 
+  BarChart2, 
+  MessageSquare, 
+  LogOut,
+  TrendingUp,
+  Activity 
+} from 'lucide-react';
 
 const Sidebar = () => {
   return (
@@ -48,24 +58,23 @@ const Sidebar = () => {
               Spécialités
             </Link>
           </li>
-
           <li>
             <Link
-              to="/admin/reports"
+              to="/admin/statistiques"
               className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition"
             >
-              <BarChart2 size={20} />
+              <TrendingUp size={20} />
               Rapports et statistiques
             </Link>
           </li>
 
           <li>
             <Link
-              to="/admin/messages"
+              to="/admin/activites"
               className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition"
             >
-              <MessageSquare size={20} />
-              Messages
+              <Activity size={20} />
+              Activités récentes
             </Link>
           </li>
 
