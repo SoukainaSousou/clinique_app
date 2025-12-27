@@ -42,6 +42,7 @@ import StaffUpdate from "./pages/admin/staff/StaffUpdate";
 import PatientDashboard from './pages/patient/PatientDashboard';
 import PatientRendezVous from './pages/patient/PatientRendezVous';
 import PatientProfil from './pages/patient/PatientProfil';
+import PatientDossierMedical from './pages/patient/DossierMedical';
 
 import Statistiques from './pages/admin/statistiques';
 import Activites from './pages/admin/Activites';
@@ -103,6 +104,7 @@ function App() {
           <Route path="/patient/dashboard" element={<PatientDashboard />} />
           <Route path="/patient/rendezvous" element={<PatientRendezVous />} />
           <Route path="/patient/profil" element={<PatientProfil />} />
+          <Route path="/patient/dossier-medical" element={<PatientDossierMedical />} />
 
 
           {/* Redirection */}
