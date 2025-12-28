@@ -1,3 +1,4 @@
+// src/components/SidebarP.js
 import { Link, useLocation } from "react-router-dom";
 import { Home, CalendarDays, FileText, User, LogOut } from "lucide-react";
 
@@ -51,17 +52,18 @@ const SidebarP = () => {
                 <span>Mes Rendez-vous</span>
               </Link>
             </li>
+            {/* Remplacer "Mes Consultations" par "Dossier Médical" */}
             <li>
               <Link
-                to="/patient/consultations"
+                to="/patient/dossier-medical"
                 className={`flex items-center gap-3 px-6 py-2.5 transition rounded-lg ${
-                  isActive("/patient/consultations") 
+                  isActive("/patient/dossier-medical") 
                     ? "bg-blue-800 border-r-4 border-white" 
                     : "hover:bg-blue-800"
                 }`}
               >
                 <FileText size={20} />
-                <span>Mes Consultations</span>
+                <span>Dossier Médical</span>
               </Link>
             </li>
             <li>
