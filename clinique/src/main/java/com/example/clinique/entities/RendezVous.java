@@ -12,6 +12,9 @@ public class RendezVous {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "user_id")
+    private Long idUser;
+
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
@@ -48,4 +51,7 @@ public class RendezVous {
 
     public String getSlot() { return slot; }
     public void setSlot(String slot) { this.slot = slot; }
+
+    public Long getIdUser() { return idUser; }
+    public void setIdUser(Long idUser) { this.idUser = idUser; }
 }

@@ -1,41 +1,40 @@
+// src/main/java/com/example/clinique/repository/ConsultationRepository.java
 package com.example.clinique.repository;
 
-import com.example.clinique.entities.Consultation;
-import com.example.clinique.entities.Patient;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import java.util.List;
+import com.example.clinique.entities.Consultation;
+import com.example.clinique.entities.Patient;
 import com.example.clinique.dto.ConsultationDto;
 
 public interface ConsultationRepository extends JpaRepository<Consultation, Integer> {
 
-    /**
-     * Retourne la liste des patients ayant consulté un médecin donné.
-     * Utilise une sous-requête car Consultation ne contient que des IDs bruts (pas de relations JPA).
-     */
-    @Query("SELECT DISTINCT p FROM Patient p " +
-           "WHERE p.id IN (SELECT c.patientId FROM Consultation c WHERE c.medecinId = :medecinId)")
-    List<Patient> findPatientsByMedecinId(@Param("medecinId") Integer medecinId);
+    // ✅ Requêtes NATIVES
+    @Query(value = "SELECT COUNT(*) FROM consultation c WHERE c.medecin_id = :medecinId", 
+           nativeQuery = true)
+    long countByMedecinId(@Param("medecinId") Integer medecinId);
 
-    /**
-     * Retourne l'ID du médecin (table 'medecins') à partir de l'ID utilisateur (table 'users').
-     * Nécessite que l'entité Medecin ait un champ 'user'.
-     */
-    @Query("SELECT m.id FROM Medecin m WHERE m.user.id = :userId")
-    Integer findMedecinIdByUserId(@Param("userId") Integer userId);
+    @Query(value = "SELECT COUNT(*) FROM consultation c " +
+                   "WHERE c.medecin_id = :medecinId AND c.traitement IS NULL", 
+           nativeQuery = true)
+    long countByMedecinIdAndTraitementIsNull(@Param("medecinId") Integer medecinId);
 
+    @Query(value = "SELECT COUNT(*) FROM consultation c " +
+                   "WHERE c.medecin_id = :medecinId AND DATE(c.date_consultation) = :date", 
+           nativeQuery = true)
+    long countByMedecinIdAndDate(@Param("medecinId") Integer medecinId, @Param("date") LocalDate date);
+
+    // ✅ Requête par patientId (méthode dérivée)
+    List<Consultation> findByPatientId(Integer patientId);
+
+    // ✅ Requête DTO personnalisée (gardez-la, elle est correcte)
     @Query("""
     SELECT new com.example.clinique.dto.ConsultationDto(
-        c.id,
-        c.dateConsultation,
-        c.motif,
-        c.traitement,
-        c.fichier,
-        m.id,
-        u.nom,
-        u.prenom,
-        s.title
+        c.id, c.dateConsultation, c.motif, c.traitement, c.fichier,
+        m.id, u.nom, u.prenom, s.title
     )
     FROM Consultation c
     JOIN Medecin m ON c.medecinId = m.id
@@ -44,5 +43,17 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Inte
     WHERE c.patientId = :patientId
     ORDER BY c.dateConsultation DESC
     """)
-List<ConsultationDto> findConsultationsWithMedecinByPatientId(@Param("patientId") Integer patientId);
+    List<ConsultationDto> findConsultationsWithMedecinByPatientId(@Param("patientId") Integer patientId);
+
+    // ✅ Ajoutez cette méthode dans ConsultationRepository.java
+    @Query(value = "SELECT DISTINCT p.* FROM patient p " +
+                "JOIN consultation c ON p.id = c.patient_id " +
+                "WHERE c.medecin_id = :medecinId", 
+        nativeQuery = true)
+    List<Patient> findPatientsByMedecinIdNative(@Param("medecinId") Integer medecinId);
+
+    // ❌ SUPPRIMER TOUT LE RESTE :
+    // - findPatientsByMedecinId
+    // - findMedecinIdByUserId
+    // - TOUTES les méthodes avec "countByMedecinUserId"
 }

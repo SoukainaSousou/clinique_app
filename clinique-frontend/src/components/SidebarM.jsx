@@ -55,15 +55,7 @@ const Sidebar = () => {
                 <span>Dossiers Médicaux</span>
               </Link>
             </li>
-            <li>
-              <Link
-                to="/medecin/ordonnances"
-                className="flex items-center gap-3 px-6 py-2.5 hover:bg-blue-800 transition rounded-lg"
-              >
-                <FileText size={20} />
-                <span>Consultations </span>
-              </Link>
-            </li>
+            
             <li>
               <Link
                 to="/medecin/profil"

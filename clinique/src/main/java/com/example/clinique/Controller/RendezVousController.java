@@ -30,6 +30,7 @@ public class RendezVousController {
         System.out.println("✅ Nombre de rendez-vous trouvés: " + rendezVousList.size());
         return rendezVousList;
     }
+    
 
     // ENDPOINT CORRIGÉ - Utilise Long
     @GetMapping("/{id}")
@@ -42,6 +43,19 @@ public class RendezVousController {
             System.out.println("❌ Rendez-vous non trouvé avec ID: " + id);
             return ResponseEntity.notFound().build();
         }
+    }
+    
+    //endpoint pour récupérer les rendez-vous d'un médecin
+    @GetMapping("/medecin/{medecinId}")
+    public List<RendezVous> getRendezVousByMedecin(@PathVariable Integer medecinId) {
+        System.out.println("🎯 Récupération des rendez-vous pour médecin ID: " + medecinId);
+        return rendezVousService.getRendezVousByMedecinId(medecinId);
+    }
+
+    // Dans RendezVousController.java
+    @GetMapping("/medecin/{userId}")
+    public List<RendezVous> getRendezVousByMedecinUser(@PathVariable Integer userId) {
+        return rendezVousService.getRendezVousByUserId(userId); // ← Integer, pas Long
     }
 
     // Ajoutez aussi les endpoints PUT et DELETE

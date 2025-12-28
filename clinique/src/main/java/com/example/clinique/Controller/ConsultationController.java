@@ -39,21 +39,7 @@ public class ConsultationController {
     @Value("${app.upload.dir:uploads/}")
     private String uploadDir;
 
-    @GetMapping("/patients/par-medecin/{medecinId}")
-    public ResponseEntity<List<Patient>> getPatientsByMedecinId(@PathVariable Integer medecinId) {
-        List<Patient> patients = consultationRepository.findPatientsByMedecinId(medecinId);
-        return ResponseEntity.ok(patients);
-    }
 
-
-    @GetMapping("/medecin-id-par-user/{userId}")
-    public ResponseEntity<Integer> getMedecinIdByUserId(@PathVariable Integer userId) {
-        Integer medecinId = consultationRepository.findMedecinIdByUserId(userId);
-        if (medecinId == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(medecinId);
-    }
 
 @GetMapping("/dossier-patient/{patientId}")
 public ResponseEntity<Map<String, Object>> getDossierPatient(@PathVariable Integer patientId) {

@@ -13,15 +13,25 @@ import com.example.clinique.entities.RendezVous;
 @Repository
 public interface RendezVousRepository extends JpaRepository<RendezVous, Long> {
 
-    // Trouver tous les rendez-vous d'un médecin pour une date donnée
-    @Query("SELECT r FROM RendezVous r WHERE r.medecin.id = :medecinId AND r.date = :date")
-    List<RendezVous> findByMedecinAndDate(@Param("medecinId") Integer medecinId, @Param("date") LocalDate date);
+    long countByDateAndMedecinId(LocalDate date, Integer medecinId);
+        // ✅ Requête NATIVE (sécurisée)
+    @Query(value = "SELECT COUNT(*) FROM rendezvous r " +
+                   "WHERE r.medecin_id = :medecinId AND r.date = :date", 
+           nativeQuery = true)
+    long countByDateAndMedecinId(@Param("medecinId") Integer medecinId, @Param("date") LocalDate date);
 
-    // Trouver tous les rendez-vous d'un médecin pour une date donnée (alias)
+    // ✅ Requêtes par medecinId (méthode dérivée - OK si champ "medecinId" existe)
+    List<RendezVous> findByMedecinId(Integer medecinId);
+    List<RendezVous> findByPatientId(Integer patientId);
+
+    // Trouver tous les rendez-vous d'un médecin pour une date donnée
+    
+    // Alias
     @Query("SELECT r FROM RendezVous r WHERE r.medecin.id = :medecinId AND r.date = :date")
     List<RendezVous> findByMedecinIdAndDate(@Param("medecinId") Integer medecinId, @Param("date") LocalDate date);
 
-    // NOUVELLE MÉTHODE : Trouver tous les rendez-vous d'un patient
-    @Query("SELECT r FROM RendezVous r WHERE r.patient.id = :patientId ORDER BY r.date DESC, r.slot DESC")
-    List<RendezVous> findByPatientId(@Param("patientId") Integer patientId);
+    // Dans RendezVousRepository.java
+@Query(value = "SELECT * FROM rendezvous r WHERE r.medecin_id = :medecinId AND r.date = :date", nativeQuery = true)
+List<RendezVous> findNativeByMedecinIdAndDate(@Param("medecinId") Integer medecinId, @Param("date") LocalDate date);
+
 }

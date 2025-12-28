@@ -50,6 +50,26 @@ public class RendezVousService {
         
         return rendezVous;
     }
+    // Dans RendezVousService.java
+    public List<RendezVous> getRendezVousByMedecinId(Integer medecinId) {
+        Optional<Medecin> medecin = medecinRepo.findById(medecinId);
+        if (medecin.isEmpty()) {
+            return List.of();
+        }
+        return rendezVousRepo.findByMedecinId(medecinId); // ✅ Maintenant ça marche !
+    }
+
+    public List<RendezVous> getRendezVousByUserId(Integer userId) {
+        System.out.println("🔍 Recherche des RDV pour user ID: " + userId);
+    
+        var medecinOpt = medecinRepo.findByUserId(userId);
+        if (medecinOpt.isEmpty()) {
+            return List.of();
+        }
+        Integer medecinId = medecinOpt.get().getId();
+        
+        return rendezVousRepo.findByMedecinId(medecinId);
+}
 
     // NOUVELLE méthode pour mettre à jour un rendez-vous
     public RendezVous updateRendezVous(Long id, CreateRendezVousDTO req) {
@@ -192,12 +212,7 @@ public class RendezVousService {
     }
 
     // Méthode pour récupérer les créneaux occupés
-    public List<String> getOccupiedSlots(Integer medecinId, LocalDate date) {
-        List<RendezVous> rendezVousList = rendezVousRepo.findByMedecinIdAndDate(medecinId, date);
-        return rendezVousList.stream()
-                .map(RendezVous::getSlot)
-                .collect(Collectors.toList());
-    }
+
 
     // NOUVELLE MÉTHODE : Récupérer les rendez-vous d'un patient
     public List<RendezVous> getRendezVousByPatientId(Integer patientId) {
@@ -240,5 +255,12 @@ public class RendezVousService {
         }
         
         return rendezVousList;
+    }
+
+    public List<String> getOccupiedSlots(Integer medecinId, LocalDate date) {
+        List<RendezVous> rendezVousList = rendezVousRepo.findNativeByMedecinIdAndDate(medecinId, date);
+        return rendezVousList.stream()
+            .map(RendezVous::getSlot)
+            .collect(Collectors.toList());
     }
 }

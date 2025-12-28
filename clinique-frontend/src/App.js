@@ -17,6 +17,7 @@ import Patients from "./pages/medecin/PatientsM";
 import DossierPatientDetail from "./pages/medecin/DossierPatientDetail";
 import DossierMedicalPage from "./pages/medecin/DossierMedicalPage";
 import AjouterConsultation from "./pages/medecin/AjouterConsultation";
+import MedecinProfil from './pages/medecin/MedecinProfil';
 
 import DashboardS from "./pages/secreitaire/SecretaireDashboard";
 import PatientsListS from "./pages/secreitaire/patients/PatientsListS";
@@ -70,6 +71,7 @@ function App() {
           <Route path="/medecin/patients" element={<Patients />} />
           <Route path="/medecin/dossiers-medicaux" element={<DossierMedicalPage />} />
           <Route path="/medecin/dossiers-medicaux/:id" element={<DossierPatientDetail />} />
+          
           <Route path="/medecin/consultations/nouvelle/:patientId" element={<AjouterConsultation />}
         />
       
@@ -106,9 +108,8 @@ function App() {
 
 
           {/* Redirection */}
-          <Route path="*" element={<Navigate to="/" />} />
-           <Route path="/medecins/:id" element={<MedecinProfile />} />  {/* ✅ Correct */}
-
+          <Route path="*" element={<Navigate to="/" />} /> 
+          <Route path="/medecin/profil" element={<MedecinProfil />} />
            <Route path="/admin/statistiques" element={<Statistiques />} />
            <Route path="/admin/activites" element={<Activites />} />
         </Routes>

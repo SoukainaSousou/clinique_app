@@ -1,9 +1,10 @@
+// src/pages/medecin/DossierMedicalPage.jsx
 import { useState, useEffect } from "react";
 import { FileText, User, Calendar, Stethoscope, Search } from "lucide-react";
 import TopBar from "../../components/TopBar";
 import Sidebar from "../../components/SidebarM";
 import { authService } from "../../services/authService";
-import { Link } from "react-router-dom"; // ← Pour la redirection vers le détail
+import { Link } from "react-router-dom";
 
 const DossierMedicalPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,10 +17,7 @@ const DossierMedicalPage = () => {
   const currentUser = authService.getCurrentUser();
   const userId = currentUser?.id;
 
-  // État pour l'ID du médecin dans la table 'medecins'
-  const [medecinId, setMedecinId] = useState(null);
-
-  // 🔁 Récupérer l'ID du médecin (table 'medecins') à partir de user_id
+  // 🔁 Charger les rendez-vous (qui contiennent les patients)
   useEffect(() => {
     if (!userId) {
       setError("Aucun médecin connecté.");
@@ -27,39 +25,30 @@ const DossierMedicalPage = () => {
       return;
     }
 
-    const fetchMedecinId = async () => {
-      try {
-        const res = await fetch(`http://localhost:8080/api/consultations/medecin-id-par-user/${userId}`);
-        if (!res.ok) throw new Error("Médecin non trouvé.");
-        const data = await res.json();
-        setMedecinId(data);
-      } catch (err) {
-        console.error("Erreur lors de la récupération de l'ID du médecin :", err);
-        setError(err.message);
-        setLoading(false);
-      }
-    };
-
-    fetchMedecinId();
-  }, [userId]);
-
-  // 🔁 Charger les patients liés à ce médecin
-  useEffect(() => {
-    if (!medecinId) return;
-
-    const fetchPatients = async () => {
+    const fetchRendezVous = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/consultations/patients/par-medecin/${medecinId}`
+          `http://localhost:8080/api/medecins/medecin/rendezvous/${userId}`
         );
 
         if (!response.ok) {
-          throw new Error(`Erreur ${response.status}: Impossible de charger les patients.`);
+          throw new Error(`Erreur ${response.status}: Impossible de charger les rendez-vous.`);
         }
 
-        const data = await response.json();
-        setPatients(data);
-        setFilteredPatients(data);
+        const rendezVousList = await response.json();
+
+        // Extraire les patients uniques
+        const patientMap = new Map();
+        rendezVousList.forEach(rdv => {
+          if (rdv.patient && !patientMap.has(rdv.patient.id)) {
+            patientMap.set(rdv.patient.id, rdv.patient);
+          }
+        });
+
+        const uniquePatients = Array.from(patientMap.values());
+        setPatients(uniquePatients);
+        setFilteredPatients(uniquePatients);
+
       } catch (err) {
         console.error("Erreur lors du chargement des patients :", err);
         setError(err.message || "Une erreur inconnue s'est produite.");
@@ -68,8 +57,8 @@ const DossierMedicalPage = () => {
       }
     };
 
-    fetchPatients();
-  }, [medecinId]);
+    fetchRendezVous();
+  }, [userId]);
 
   // 🔍 Filtrer localement
   useEffect(() => {

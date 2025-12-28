@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -40,55 +39,6 @@ class ConsultationControllerTest {
     @MockBean
     private PatientRepository patientRepository;
 
-    // ----------------- GET patients by medecin -----------------
-    @Test
-    void shouldReturnPatientsByMedecin() throws Exception {
-        Integer medecinId = 1;
-        Patient p1 = new Patient();
-        p1.setId(1);
-        p1.setNom("Dupont");
-        Patient p2 = new Patient();
-        p2.setId(2);
-        p2.setNom("Martin");
-
-        when(consultationRepository.findPatientsByMedecinId(medecinId))
-                .thenReturn(List.of(p1, p2));
-
-        mockMvc.perform(get("/api/consultations/patients/par-medecin/{medecinId}", medecinId))
-               .andExpect(status().isOk())
-               .andExpect(jsonPath("$[0].nom").value("Dupont"))
-               .andExpect(jsonPath("$[1].nom").value("Martin"));
-
-        verify(consultationRepository, times(1)).findPatientsByMedecinId(medecinId);
-    }
-
-    // ----------------- GET medecin ID by user ID -----------------
-    @Test
-    void shouldReturnMedecinIdByUserId() throws Exception {
-        Integer userId = 10;
-        Integer medecinId = 5;
-
-        when(consultationRepository.findMedecinIdByUserId(userId)).thenReturn(medecinId);
-
-        mockMvc.perform(get("/api/consultations/medecin-id-par-user/{userId}", userId))
-               .andExpect(status().isOk())
-               .andExpect(content().string(medecinId.toString()));
-
-        verify(consultationRepository, times(1)).findMedecinIdByUserId(userId);
-    }
-
-    @Test
-    void shouldReturn404WhenMedecinIdNotFound() throws Exception {
-        Integer userId = 10;
-
-        when(consultationRepository.findMedecinIdByUserId(userId)).thenReturn(null);
-
-        mockMvc.perform(get("/api/consultations/medecin-id-par-user/{userId}", userId))
-               .andExpect(status().isNotFound());
-
-        verify(consultationRepository, times(1)).findMedecinIdByUserId(userId);
-    }
-
     // ----------------- GET dossier patient -----------------
     @Test
     void shouldReturnDossierPatient() throws Exception {
@@ -97,19 +47,17 @@ class ConsultationControllerTest {
         patient.setId(patientId);
         patient.setNom("Dupont");
 
-       ConsultationDto dto = new ConsultationDto(
-    1,                                  // id
-    LocalDateTime.now(),                // dateConsultation
-    "Checkup",                          // motif
-    "",                                 // traitement
-    List.of(),                          // fichier
-    10,                                 // medecinId
-    "Dupont",                           // medecinNom
-    "Jean",                             // medecinPrenom
-    "Cardiologie"                       // specialite
-);
-
-       
+        ConsultationDto dto = new ConsultationDto(
+            1,
+            LocalDateTime.now(),
+            "Checkup",
+            "",
+            List.of(),
+            10,
+            "Dupont",
+            "Jean",
+            "Cardiologie"
+        );
 
         when(patientRepository.findById(patientId)).thenReturn(Optional.of(patient));
         when(consultationRepository.findConsultationsWithMedecinByPatientId(patientId))

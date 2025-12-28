@@ -1,10 +1,12 @@
+// src/main/java/com/example/clinique/repository/MedecinRepository.java
 package com.example.clinique.repository;
 
-import com.example.clinique.entities.Medecin;
-import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.clinique.entities.Medecin;
 
 public interface MedecinRepository extends JpaRepository<Medecin, Integer> {
     Optional<Medecin> findByUserId(Integer userId);
-    void deleteByUserId(Integer userId); // Cette méthode existe déjà, utilisez-la!
+    
+    // ❌ SUPPRIMEZ findIdByUserId (pas nécessaire, utilisez medecinOpt.get().getId())
 }

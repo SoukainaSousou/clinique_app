@@ -169,4 +169,37 @@ public ResponseEntity<?> updateMedecin(Integer medecinId, MedecinRequest request
                 .body("Erreur lors de la suppression: " + e.getMessage());
         }
     }
+
+
+
+
+
+    // ✔️ Mise à jour DU PROFIL MÉDECIN SEULEMENT (image, exp, langues)
+    @Transactional
+    public ResponseEntity<?> updateMedecinProfil(Integer medecinId, MedecinRequest request) {
+        System.out.println("🔄 Mise à jour DU PROFIL médecin ID: " + medecinId);
+        
+        Optional<Medecin> medecinOpt = medecinRepository.findById(medecinId);
+        if (medecinOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Medecin medecin = medecinOpt.get();
+
+        // 🔒 Ne mettre à jour QUE les champs du profil (PAS User, PAS spécialité)
+        if (request.getImage() != null) {
+            medecin.setImage(request.getImage());
+        }
+        if (request.getExperiences() != null) {
+            medecin.setExperiences(request.getExperiences());
+        }
+        if (request.getLanguages() != null) {
+            medecin.setLanguages(request.getLanguages());
+        }
+
+        medecinRepository.save(medecin);
+        System.out.println("✅ Profil médecin mis à jour (seulement image/exp/langues)");
+
+        return ResponseEntity.ok(medecin);
+    }
 }
