@@ -47,14 +47,14 @@ public class RendezVousController {
     
     //endpoint pour récupérer les rendez-vous d'un médecin
     @GetMapping("/medecin/{medecinId}")
-    public List<RendezVous> getRendezVousByMedecin(@PathVariable Integer medecinId) {
+    public List<RendezVous> getRendezVousByMedecin(@PathVariable Long medecinId) {
         System.out.println("🎯 Récupération des rendez-vous pour médecin ID: " + medecinId);
         return rendezVousService.getRendezVousByMedecinId(medecinId);
     }
 
     // Dans RendezVousController.java
     @GetMapping("/medecin/{userId}")
-    public List<RendezVous> getRendezVousByMedecinUser(@PathVariable Integer userId) {
+    public List<RendezVous> getRendezVousByMedecinUser(@PathVariable Long userId) {
         return rendezVousService.getRendezVousByUserId(userId); // ← Integer, pas Long
     }
 
@@ -97,7 +97,7 @@ public class RendezVousController {
 
     // Endpoint pour récupérer les créneaux occupés d'un médecin pour une date
     @GetMapping("/occupied-slots/{doctorId}/{date}")
-    public List<String> getOccupiedSlots(@PathVariable Integer doctorId, @PathVariable String date) {
+    public List<String> getOccupiedSlots(@PathVariable Long doctorId, @PathVariable String date) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDate localDate = LocalDate.parse(date, formatter);
@@ -109,7 +109,7 @@ public class RendezVousController {
 
     // NOUVEL ENDPOINT : Récupérer les rendez-vous d'un patient
     @GetMapping("/patient/{patientId}")
-    public List<RendezVous> getRendezVousByPatient(@PathVariable Integer patientId) {
+    public List<RendezVous> getRendezVousByPatient(@PathVariable Long patientId) {
         System.out.println("🎯 Récupération des rendez-vous pour patient ID: " + patientId);
         return rendezVousService.getRendezVousByPatientId(patientId);
     }

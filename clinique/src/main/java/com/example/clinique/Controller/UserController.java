@@ -27,7 +27,7 @@ public class UserController {
 
     // ✅ Obtenir un utilisateur par ID
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Integer id) {
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return userService.getUserById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -41,7 +41,7 @@ public class UserController {
 
     // ✅ Mettre à jour un utilisateur
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody User userDetails) {
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
         return userService.getUserById(id).map(user -> {
             user.setNom(userDetails.getNom());
             user.setPrenom(userDetails.getPrenom());
@@ -54,7 +54,7 @@ public class UserController {
     }
 
  @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         return userService.deleteUser(id);
     }   
 @CrossOrigin(origins = "http://localhost:3000")
@@ -65,7 +65,7 @@ public class UserController {
     }
 
 @PutMapping("/update-medecin/{id}") 
-public ResponseEntity<?> updateMedecin(@PathVariable Integer id, @RequestBody MedecinRequest request) 
+public ResponseEntity<?> updateMedecin(@PathVariable Long id, @RequestBody MedecinRequest request) 
    {
      return userService.updateMedecin(id, request);
     } 

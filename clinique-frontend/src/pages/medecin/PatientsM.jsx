@@ -1,5 +1,6 @@
 // src/pages/medecin/PatientsM.jsx
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // 👈 Ajout de useNavigate
 import Sidebar from "../../components/SidebarM";
 import TopBar from "../../components/TopBar";
 import { useAuth } from "../../context/AuthContext";
@@ -8,6 +9,8 @@ import { User, Search } from "lucide-react";
 
 const PatientsM = () => {
   const { user } = useAuth(); // { id, nom, prenom, email, role }
+  const navigate = useNavigate(); // 👈 Hook de navigation
+
   const [patients, setPatients] = useState([]);
   const [filteredPatients, setFilteredPatients] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -24,14 +27,12 @@ const PatientsM = () => {
 
     const fetchPatients = async () => {
       try {
-        // Appel à l'endpoint existant (voir MedecinController.java)
         const response = await axios.get(
           `http://localhost:8080/api/medecins/medecin/rendezvous/${user.id}`
         );
 
         const rendezVousList = response.data;
 
-        // Extraire les patients uniques
         const patientMap = new Map();
         rendezVousList.forEach((rdv) => {
           if (rdv.patient && rdv.patient.id) {
@@ -162,6 +163,7 @@ const PatientsM = () => {
                       <th className="py-2 px-3 text-left">CIN</th>
                       <th className="py-2 px-3 text-left">Téléphone</th>
                       <th className="py-2 px-3 text-left">Adresse</th>
+                      <th className="py-2 px-3 text-left">Actions</th> {/* 👈 Nouvelle colonne */}
                     </tr>
                   </thead>
                   <tbody>
@@ -172,6 +174,18 @@ const PatientsM = () => {
                         <td className="py-2 px-3">{patient.cin || "—"}</td>
                         <td className="py-2 px-3">{patient.tel || "—"}</td>
                         <td className="py-2 px-3">{patient.adresse || "—"}</td>
+                        <td className="py-2 px-3">
+                          <button
+                            onClick={() =>
+                              navigate(
+                                `/medecin/patients/${patient.id}/ajouter-consultation`
+                              )
+                            }
+                            className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition"
+                          >
+                            ➕ Ajouter consultation
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

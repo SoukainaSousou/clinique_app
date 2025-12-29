@@ -42,7 +42,7 @@ public class ConsultationController {
 
 
 @GetMapping("/dossier-patient/{patientId}")
-public ResponseEntity<Map<String, Object>> getDossierPatient(@PathVariable Integer patientId) {
+public ResponseEntity<Map<String, Object>> getDossierPatient(@PathVariable Long patientId) {
     try {
         // 1. Récupérer le patient
         Optional<Patient> patientOpt = patientRepository.findById(patientId);

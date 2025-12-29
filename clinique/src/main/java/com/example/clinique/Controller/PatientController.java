@@ -40,13 +40,13 @@ public class PatientController {
 
     // 🔹 Récupérer un patient par ID
     @GetMapping("/{id}")
-    public Optional<Patient> getPatientById(@PathVariable Integer id) {
+    public Optional<Patient> getPatientById(@PathVariable Long id) {
         return patientRepository.findById(id);
     }
 
     // Dans PatientController.java - modifiez la méthode updatePatient
 @PutMapping("/{id}")
-public Patient updatePatient(@PathVariable Integer id, @RequestBody Patient updatedPatient) {
+public Patient updatePatient(@PathVariable Long id, @RequestBody Patient updatedPatient) {
     return patientRepository.findById(id)
             .map(patient -> {
                 patient.setNom(updatedPatient.getNom());
@@ -63,7 +63,7 @@ public Patient updatePatient(@PathVariable Integer id, @RequestBody Patient upda
 
     // 🔹 Supprimer un patient
     @DeleteMapping("/{id}")
-    public void deletePatient(@PathVariable Integer id) {
+    public void deletePatient(@PathVariable Long id) {
         patientRepository.deleteById(id);
     }
 

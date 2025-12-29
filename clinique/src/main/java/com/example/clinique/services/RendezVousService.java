@@ -51,25 +51,25 @@ public class RendezVousService {
         return rendezVous;
     }
     // Dans RendezVousService.java
-    public List<RendezVous> getRendezVousByMedecinId(Integer medecinId) {
+    public List<RendezVous> getRendezVousByMedecinId(Long medecinId) {
         Optional<Medecin> medecin = medecinRepo.findById(medecinId);
         if (medecin.isEmpty()) {
             return List.of();
         }
-        return rendezVousRepo.findByMedecinId(medecinId); // ✅ Maintenant ça marche !
+        return rendezVousRepo.findByMedecinId(medecinId);
     }
 
-    public List<RendezVous> getRendezVousByUserId(Integer userId) {
+    public List<RendezVous> getRendezVousByUserId(Long userId) {
         System.out.println("🔍 Recherche des RDV pour user ID: " + userId);
-    
-        var medecinOpt = medecinRepo.findByUserId(userId);
+
+        var medecinOpt = medecinRepo.findByUserId(userId); // ✅ OK si findByUserId attend bien Integer
         if (medecinOpt.isEmpty()) {
             return List.of();
         }
-        Integer medecinId = medecinOpt.get().getId();
-        
-        return rendezVousRepo.findByMedecinId(medecinId);
-}
+        Long medecinId = medecinOpt.get().getId(); // ✅ Long, pas Integer
+
+        return rendezVousRepo.findByMedecinId(medecinId); // ✅ Passe Long
+    }
 
     // NOUVELLE méthode pour mettre à jour un rendez-vous
     public RendezVous updateRendezVous(Long id, CreateRendezVousDTO req) {
@@ -215,7 +215,7 @@ public class RendezVousService {
 
 
     // NOUVELLE MÉTHODE : Récupérer les rendez-vous d'un patient
-    public List<RendezVous> getRendezVousByPatientId(Integer patientId) {
+    public List<RendezVous> getRendezVousByPatientId(Long patientId) {
         System.out.println("🔍 Recherche des rendez-vous pour patient ID: " + patientId);
         
         // Vérifier si le patient existe
@@ -257,7 +257,7 @@ public class RendezVousService {
         return rendezVousList;
     }
 
-    public List<String> getOccupiedSlots(Integer medecinId, LocalDate date) {
+    public List<String> getOccupiedSlots(Long medecinId, LocalDate date) {
         List<RendezVous> rendezVousList = rendezVousRepo.findNativeByMedecinIdAndDate(medecinId, date);
         return rendezVousList.stream()
             .map(RendezVous::getSlot)

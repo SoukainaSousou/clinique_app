@@ -37,7 +37,7 @@ class UserControllerTest {
     @Test
     void shouldReturnAllUsers() throws Exception {
         User user = new User();
-        user.setId(1);
+        user.setId(1L); // ✅ Long
         user.setNom("Jean");
         user.setPrenom("Dupont");
 
@@ -52,10 +52,10 @@ class UserControllerTest {
     @Test
     void shouldReturnUserById() throws Exception {
         User user = new User();
-        user.setId(1);
+        user.setId(1L); // ✅ Long
         user.setNom("Jean");
 
-        when(userService.getUserById(1)).thenReturn(Optional.of(user));
+        when(userService.getUserById(1L)).thenReturn(Optional.of(user)); // ✅ 1L
 
         mockMvc.perform(get("/api/users/1"))
                .andExpect(status().isOk())
@@ -64,7 +64,7 @@ class UserControllerTest {
 
     @Test
     void shouldReturn404WhenUserNotFound() throws Exception {
-        when(userService.getUserById(99)).thenReturn(Optional.empty());
+        when(userService.getUserById(99L)).thenReturn(Optional.empty()); // ✅ 99L
 
         mockMvc.perform(get("/api/users/99"))
                .andExpect(status().isNotFound());
@@ -87,13 +87,13 @@ class UserControllerTest {
     @Test
     void shouldUpdateUser() throws Exception {
         User existing = new User();
-        existing.setId(1);
+        existing.setId(1L); // ✅ Long
         existing.setNom("Old");
 
         User update = new User();
         update.setNom("New");
 
-        when(userService.getUserById(1)).thenReturn(Optional.of(existing));
+        when(userService.getUserById(1L)).thenReturn(Optional.of(existing)); // ✅ 1L
         when(userService.saveUser(any(User.class))).thenReturn(update);
 
         mockMvc.perform(put("/api/users/1")
@@ -105,42 +105,39 @@ class UserControllerTest {
 
     @Test
     void shouldDeleteUser() throws Exception {
-        when(userService.deleteUser(1)).thenReturn(ResponseEntity.ok().build());
+        when(userService.deleteUser(1L)).thenReturn(ResponseEntity.ok().build()); // ✅ 1L
 
         mockMvc.perform(delete("/api/users/1"))
                .andExpect(status().isOk());
 
-        verify(userService, times(1)).deleteUser(1);
+        verify(userService, times(1)).deleteUser(1L); // ✅ 1L
     }
 
- @Test
-void shouldCreateMedecin() throws Exception {
-    MedecinRequest request = new MedecinRequest();
+    @Test
+    void shouldCreateMedecin() throws Exception {
+        MedecinRequest request = new MedecinRequest();
 
-    // Utiliser le cast générique pour Mockito
-    Mockito.<ResponseEntity<?>>when(userService.createMedecin(any(MedecinRequest.class)))
-           .thenReturn(ResponseEntity.ok("Médecin créé"));
+        Mockito.<ResponseEntity<?>>when(userService.createMedecin(any(MedecinRequest.class)))
+               .thenReturn(ResponseEntity.ok("Médecin créé"));
 
-    mockMvc.perform(post("/api/users/create-medecin")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-           .andExpect(status().isOk())
-           .andExpect(content().string("Médecin créé"));
-}
+        mockMvc.perform(post("/api/users/create-medecin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+               .andExpect(status().isOk())
+               .andExpect(content().string("Médecin créé"));
+    }
 
-@Test
-void shouldUpdateMedecin() throws Exception {
-    MedecinRequest request = new MedecinRequest();
+    @Test
+    void shouldUpdateMedecin() throws Exception {
+        MedecinRequest request = new MedecinRequest();
 
-    // Utiliser le cast générique pour Mockito
-    Mockito.<ResponseEntity<?>>when(userService.updateMedecin(eq(1), any(MedecinRequest.class)))
-           .thenReturn(ResponseEntity.ok("Médecin mis à jour"));
+        Mockito.<ResponseEntity<?>>when(userService.updateMedecin(eq(1L), any(MedecinRequest.class))) // ✅ 1L
+               .thenReturn(ResponseEntity.ok("Médecin mis à jour"));
 
-    mockMvc.perform(put("/api/users/update-medecin/1")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-           .andExpect(status().isOk())
-           .andExpect(content().string("Médecin mis à jour"));
-}
-
+        mockMvc.perform(put("/api/users/update-medecin/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+               .andExpect(status().isOk())
+               .andExpect(content().string("Médecin mis à jour"));
+    }
 }

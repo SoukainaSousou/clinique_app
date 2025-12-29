@@ -8,7 +8,7 @@ public class Medecin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     // RELATION SIMPLIFIÉE - Supprimez @JsonBackReference
     @OneToOne
@@ -27,8 +27,8 @@ public class Medecin {
     public Medecin() {}
 
     // Getters et Setters
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }

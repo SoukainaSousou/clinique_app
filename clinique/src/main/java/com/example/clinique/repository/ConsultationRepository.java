@@ -10,25 +10,25 @@ import com.example.clinique.entities.Consultation;
 import com.example.clinique.entities.Patient;
 import com.example.clinique.dto.ConsultationDto;
 
-public interface ConsultationRepository extends JpaRepository<Consultation, Integer> {
+public interface ConsultationRepository extends JpaRepository<Consultation, Long> {
 
     // ✅ Requêtes NATIVES
     @Query(value = "SELECT COUNT(*) FROM consultation c WHERE c.medecin_id = :medecinId", 
            nativeQuery = true)
-    long countByMedecinId(@Param("medecinId") Integer medecinId);
+    long countByMedecinId(@Param("medecinId") Long medecinId);
 
     @Query(value = "SELECT COUNT(*) FROM consultation c " +
                    "WHERE c.medecin_id = :medecinId AND c.traitement IS NULL", 
            nativeQuery = true)
-    long countByMedecinIdAndTraitementIsNull(@Param("medecinId") Integer medecinId);
+    long countByMedecinIdAndTraitementIsNull(@Param("medecinId") Long medecinId);
 
     @Query(value = "SELECT COUNT(*) FROM consultation c " +
                    "WHERE c.medecin_id = :medecinId AND DATE(c.date_consultation) = :date", 
            nativeQuery = true)
-    long countByMedecinIdAndDate(@Param("medecinId") Integer medecinId, @Param("date") LocalDate date);
+    long countByMedecinIdAndDate(@Param("medecinId") Long medecinId, @Param("date") LocalDate date);
 
     // ✅ Requête par patientId (méthode dérivée)
-    List<Consultation> findByPatientId(Integer patientId);
+    List<Consultation> findByPatientId(Long patientId);
 
     // ✅ Requête DTO personnalisée (gardez-la, elle est correcte)
     @Query("""
@@ -43,14 +43,14 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Inte
     WHERE c.patientId = :patientId
     ORDER BY c.dateConsultation DESC
     """)
-    List<ConsultationDto> findConsultationsWithMedecinByPatientId(@Param("patientId") Integer patientId);
+    List<ConsultationDto> findConsultationsWithMedecinByPatientId(@Param("patientId") Long patientId);
 
     // ✅ Ajoutez cette méthode dans ConsultationRepository.java
     @Query(value = "SELECT DISTINCT p.* FROM patient p " +
                 "JOIN consultation c ON p.id = c.patient_id " +
                 "WHERE c.medecin_id = :medecinId", 
         nativeQuery = true)
-    List<Patient> findPatientsByMedecinIdNative(@Param("medecinId") Integer medecinId);
+    List<Patient> findPatientsByMedecinIdNative(@Param("medecinId") Long medecinId);
 
     // ❌ SUPPRIMER TOUT LE RESTE :
     // - findPatientsByMedecinId

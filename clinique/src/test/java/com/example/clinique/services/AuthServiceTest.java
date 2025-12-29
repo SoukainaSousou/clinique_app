@@ -40,6 +40,7 @@ class AuthServiceTest {
     @Test
     void shouldFailWhenPasswordIncorrect() {
         User user = new User();
+        user.setId(1L); // ✅ Long
         user.setMot_de_passe("correct");
 
         when(userRepository.findByEmail("test@test.com"))
@@ -56,7 +57,7 @@ class AuthServiceTest {
     @Test
     void shouldAuthenticateSuccessfully() {
         User user = new User();
-        user.setId(1);
+        user.setId(1L); // ✅ Long
         user.setRole(User.Role.admin);
         user.setMot_de_passe("1234");
 

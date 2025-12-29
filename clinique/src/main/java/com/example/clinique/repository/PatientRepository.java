@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import com.example.clinique.entities.Patient;
 
-public interface PatientRepository extends JpaRepository<Patient, Integer> {
+public interface PatientRepository extends JpaRepository<Patient, Long> {
     
     Optional<Patient> findByEmail(String email);
 
@@ -20,10 +20,10 @@ public interface PatientRepository extends JpaRepository<Patient, Integer> {
 
     // ✅ Requête NATIVE
     @Query(value = "SELECT COUNT(DISTINCT r.patient_id) " +
-                   "FROM rendezvous r " +
+                   "FROM rendez_vous r " +
                    "WHERE r.medecin_id = :medecinId", 
            nativeQuery = true)
-    long countByMedecinId(@Param("medecinId") Integer medecinId);
+    long countByMedecinId(@Param("medecinId") Long medecinId);
 
     // ❌ SUPPRIMER TOUTE AUTRE MÉTHODE
 }

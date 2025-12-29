@@ -72,7 +72,7 @@ function App() {
           <Route path="/medecin/patients" element={<Patients />} />
           <Route path="/medecin/dossiers-medicaux" element={<DossierMedicalPage />} />
           <Route path="/medecin/dossiers-medicaux/:id" element={<DossierPatientDetail />} />
-          
+          <Route path="/medecin/patients/:patientId/ajouter-consultation" element={<AjouterConsultation />} />
           <Route path="/medecin/consultations/nouvelle/:patientId" element={<AjouterConsultation />}
         />
       

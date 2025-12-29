@@ -1,7 +1,7 @@
 package com.example.clinique.dto;
 
 public class RendezVousRequest {
-    private Integer doctorId;
+    private Long doctorId;
     private String nom;
     private String prenom;
     private String email;
@@ -13,8 +13,8 @@ public class RendezVousRequest {
     private String slot;
 
     // Getters et Setters
-    public Integer getDoctorId() { return doctorId; }
-    public void setDoctorId(Integer doctorId) { this.doctorId = doctorId; }
+    public Long getDoctorId() { return doctorId; }
+    public void setDoctorId(Long doctorId) { this.doctorId = doctorId; }
     public String getNom() { return nom; }
     public void setNom(String nom) { this.nom = nom; }
     public String getPrenom() { return prenom; }

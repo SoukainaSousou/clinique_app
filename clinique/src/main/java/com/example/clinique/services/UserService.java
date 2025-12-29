@@ -33,7 +33,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUserById(Integer id) {
+    public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
 
@@ -75,7 +75,7 @@ public class UserService {
 // ✔️ UPDATE MÉDECIN
 // -------------------------------------------
 @Transactional
-public ResponseEntity<?> updateMedecin(Integer medecinId, MedecinRequest request) {
+public ResponseEntity<?> updateMedecin(Long medecinId, MedecinRequest request) {
     System.out.println("🔄 Service: Mise à jour médecin ID: " + medecinId);
     
     try {
@@ -127,7 +127,7 @@ public ResponseEntity<?> updateMedecin(Integer medecinId, MedecinRequest request
     // ✔️ SUPPRESSION - CORRIGÉ
     // -------------------------------------------
     @Transactional
-    public ResponseEntity<?> deleteUser(Integer id) {
+    public ResponseEntity<?> deleteUser(Long id) {
         try {
             System.out.println("🚀 Suppression user ID: " + id);
             
@@ -176,7 +176,7 @@ public ResponseEntity<?> updateMedecin(Integer medecinId, MedecinRequest request
 
     // ✔️ Mise à jour DU PROFIL MÉDECIN SEULEMENT (image, exp, langues)
     @Transactional
-    public ResponseEntity<?> updateMedecinProfil(Integer medecinId, MedecinRequest request) {
+    public ResponseEntity<?> updateMedecinProfil(Long medecinId, MedecinRequest request) {
         System.out.println("🔄 Mise à jour DU PROFIL médecin ID: " + medecinId);
         
         Optional<Medecin> medecinOpt = medecinRepository.findById(medecinId);

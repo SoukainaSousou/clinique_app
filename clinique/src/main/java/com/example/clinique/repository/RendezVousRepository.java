@@ -12,26 +12,29 @@ import com.example.clinique.entities.RendezVous;
 
 @Repository
 public interface RendezVousRepository extends JpaRepository<RendezVous, Long> {
+    long countByMedecinIdAndDate(Long medecinId, LocalDate date);
 
-    long countByDateAndMedecinId(LocalDate date, Integer medecinId);
-        // ✅ Requête NATIVE (sécurisée)
-    @Query(value = "SELECT COUNT(*) FROM rendezvous r " +
+    // ⚠️ Supprimez la version redondante avec Integer → utilisez Long (car ID = Long dans l'entité)
+    
+    // ✅ Version JPQL (recommandée) – pas de nom de table
+    @Query("SELECT COUNT(r) FROM RendezVous r WHERE r.medecin.id = :medecinId AND r.date = :date")
+    long countByDateAndMedecinId(@Param("medecinId") Long medecinId, @Param("date") LocalDate date);
+
+    // ✅ Version native – CORRIGÉE avec `rendez_vous`
+    @Query(value = "SELECT COUNT(*) FROM rendez_vous r " +
                    "WHERE r.medecin_id = :medecinId AND r.date = :date", 
            nativeQuery = true)
-    long countByDateAndMedecinId(@Param("medecinId") Integer medecinId, @Param("date") LocalDate date);
+    long countByDateAndMedecinIdNative(@Param("medecinId") Long medecinId, @Param("date") LocalDate date);
 
-    // ✅ Requêtes par medecinId (méthode dérivée - OK si champ "medecinId" existe)
-    List<RendezVous> findByMedecinId(Integer medecinId);
-    List<RendezVous> findByPatientId(Integer patientId);
+    // ✅ Méthodes dérivées – utilisez `Long` pour les ID (cohérent avec @Id Long)
+    List<RendezVous> findByMedecinId(Long medecinId);
+    List<RendezVous> findByPatientId(Long patientId);
 
-    // Trouver tous les rendez-vous d'un médecin pour une date donnée
-    
-    // Alias
+    // ✅ JPQL : par date et médecin
     @Query("SELECT r FROM RendezVous r WHERE r.medecin.id = :medecinId AND r.date = :date")
-    List<RendezVous> findByMedecinIdAndDate(@Param("medecinId") Integer medecinId, @Param("date") LocalDate date);
+    List<RendezVous> findByMedecinIdAndDate(@Param("medecinId") Long medecinId, @Param("date") LocalDate date);
 
-    // Dans RendezVousRepository.java
-@Query(value = "SELECT * FROM rendezvous r WHERE r.medecin_id = :medecinId AND r.date = :date", nativeQuery = true)
-List<RendezVous> findNativeByMedecinIdAndDate(@Param("medecinId") Integer medecinId, @Param("date") LocalDate date);
-
+    // ✅ Native – CORRIGÉE
+    @Query(value = "SELECT * FROM rendez_vous r WHERE r.medecin_id = :medecinId AND r.date = :date", nativeQuery = true)
+    List<RendezVous> findNativeByMedecinIdAndDate(@Param("medecinId") Long medecinId, @Param("date") LocalDate date);
 }

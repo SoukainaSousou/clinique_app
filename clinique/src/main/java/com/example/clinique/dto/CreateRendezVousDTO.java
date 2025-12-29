@@ -3,13 +3,13 @@ package com.example.clinique.dto;
 public class CreateRendezVousDTO {
     private String date;
     private String slot;
-    private Integer patientId;
-    private Integer doctorId;
+    private Long patientId;
+    private Long doctorId;
 
     // Constructeurs
     public CreateRendezVousDTO() {}
 
-    public CreateRendezVousDTO(String date, String slot, Integer patientId, Integer doctorId) {
+    public CreateRendezVousDTO(String date, String slot, Long patientId, Long doctorId) {
         this.date = date;
         this.slot = slot;
         this.patientId = patientId;
@@ -23,11 +23,11 @@ public class CreateRendezVousDTO {
     public String getSlot() { return slot; }
     public void setSlot(String slot) { this.slot = slot; }
 
-    public Integer getPatientId() { return patientId; }
-    public void setPatientId(Integer patientId) { this.patientId = patientId; }
+    public Long getPatientId() { return patientId; }
+    public void setPatientId(Long patientId) { this.patientId = patientId; }
 
-    public Integer getDoctorId() { return doctorId; }
-    public void setDoctorId(Integer doctorId) { this.doctorId = doctorId; }
+    public Long getDoctorId() { return doctorId; }
+    public void setDoctorId(Long doctorId) { this.doctorId = doctorId; }
 
     @Override
     public String toString() {
