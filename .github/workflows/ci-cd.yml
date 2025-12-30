@@ -130,50 +130,46 @@ jobs:
           trivy fs --exit-code 0 --severity HIGH,CRITICAL .
 
   # ----------------------------
-  # JOB 3: DOCKER BUILD (toujours exécuté) - CORRIGÉ
-  # ----------------------------
-  docker-build:
-    runs-on: ubuntu-latest
-    needs: [build-and-test, security-scan]
-    if: always()  # ← Toujours exécuter
+# JOB 3: DOCKER BUILD (avec push conditionnel)
+# ----------------------------
+docker-build:
+  runs-on: ubuntu-latest
+  needs: [build-and-test, security-scan]
+  if: always()
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
-      - name: Login GitHub Container Registry
-        if: github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+    # Étape 1: Build des images
+    - name: Build Docker Images
+      run: |
+        # Backend
+        cd clinique
+        docker build -t clinique-backend:${{ env.VERSION }} .
+        
+        # Frontend
+        cd ../clinique-frontend
+        docker build -t clinique-frontend:${{ env.VERSION }} .
+        
+        echo "✅ Docker images built successfully"
 
-      # Version avec repository owner en minuscules
-      - name: Build Backend Docker Image
-        run: |
-          cd clinique
-          # Convertir le repository owner en minuscules
-          REPO_OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          echo "Building backend image as: ${{ env.REGISTRY }}/$REPO_OWNER_LOWER/${{ env.IMAGE_NAME_BACKEND }}:${{ env.VERSION }}"
-          docker build -t ${{ env.REGISTRY }}/$REPO_OWNER_LOWER/${{ env.IMAGE_NAME_BACKEND }}:${{ env.VERSION }} .
-
-      - name: Build Frontend Docker Image
-        run: |
-          cd clinique-frontend
-          # Convertir le repository owner en minuscules
-          REPO_OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          echo "Building frontend image as: ${{ env.REGISTRY }}/$REPO_OWNER_LOWER/${{ env.IMAGE_NAME_FRONTEND }}:${{ env.VERSION }}"
-          docker build -t ${{ env.REGISTRY }}/$REPO_OWNER_LOWER/${{ env.IMAGE_NAME_FRONTEND }}:${{ env.VERSION }} .
-
-      - name: Push Images (Main only)
-        if: github.ref == 'refs/heads/main'
-        run: |
-          # Convertir le repository owner en minuscules
-          REPO_OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          echo "Pushing images with repo owner: $REPO_OWNER_LOWER"
-          docker push ${{ env.REGISTRY }}/$REPO_OWNER_LOWER/${{ env.IMAGE_NAME_BACKEND }}:${{ env.VERSION }}
-          docker push ${{ env.REGISTRY }}/$REPO_OWNER_LOWER/${{ env.IMAGE_NAME_FRONTEND }}:${{ env.VERSION }}
+    # Étape 2: Push seulement si c'est la branche main ET si on a les permissions
+    - name: Push to GHCR (Conditional)
+      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+      run: |
+        # Login avec token personnel (il faut d'abord créer ce secret)
+        echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        
+        # Tag and push backend
+        docker tag clinique-backend:${{ env.VERSION }} ghcr.io/soukainasousou/clinique-backend:${{ env.VERSION }}
+        docker push ghcr.io/soukainasousou/clinique-backend:${{ env.VERSION }}
+        
+        # Tag and push frontend
+        docker tag clinique-frontend:${{ env.VERSION }} ghcr.io/soukainasousou/clinique-frontend:${{ env.VERSION }}
+        docker push ghcr.io/soukainasousou/clinique-frontend:${{ env.VERSION }}
+        
+        echo "✅ Images pushed to GHCR"
