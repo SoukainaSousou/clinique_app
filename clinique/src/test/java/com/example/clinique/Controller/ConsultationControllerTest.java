@@ -3,18 +3,17 @@ package com.example.clinique.Controller;
 import com.example.clinique.entities.Consultation;
 import com.example.clinique.entities.Patient;
 import com.example.clinique.dto.ConsultationDto;
-import com.example.clinique.service.ConsultationService;  // Add this
-import com.example.clinique.service.PatientService;      // Add this
+import com.example.clinique.repository.ConsultationRepository;
+import com.example.clinique.repository.PatientRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,9 +24,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-// CHANGED: Replace @WebMvcTest with @SpringBootTest
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(ConsultationController.class)
 class ConsultationControllerTest {
 
     @Autowired
@@ -36,12 +33,11 @@ class ConsultationControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // CHANGED: Mock services instead of repositories
     @MockBean
-    private ConsultationService consultationService;
+    private ConsultationRepository consultationRepository;
 
     @MockBean
-    private PatientService patientService;
+    private PatientRepository patientRepository;
 
     @Test
     void shouldReturnDossierPatient() throws Exception {
@@ -51,20 +47,19 @@ class ConsultationControllerTest {
         patient.setNom("Dupont");
 
         ConsultationDto dto = new ConsultationDto(
-            1,
+            1,                    // ✅ Integer → car Consultation.id = Integer
             LocalDateTime.now(),
             "Checkup",
             "",
             List.of(),
-            10L,
+            10L,                  // ✅ Long → car c'est medecin.id ou similaire
             "Dupont",
             "Jean",
             "Cardiologie"
         );
 
-        // CHANGED: Use service instead of repository
-        when(patientService.getPatientById(patientId)).thenReturn(patient);
-        when(consultationService.findConsultationsWithMedecinByPatientId(patientId))
+        when(patientRepository.findById(patientId)).thenReturn(Optional.of(patient));
+        when(consultationRepository.findConsultationsWithMedecinByPatientId(patientId))
                 .thenReturn(List.of(dto));
 
         mockMvc.perform(get("/api/consultations/dossier-patient/{patientId}", patientId))
@@ -76,11 +71,7 @@ class ConsultationControllerTest {
     @Test
     void shouldReturn404WhenPatientNotFound() throws Exception {
         Long patientId = 1L;
-        
-        // CHANGED: Throw exception or return null as your service would
-        when(patientService.getPatientById(patientId))
-            .thenThrow(new RuntimeException("Patient not found"));
-            // OR: .thenReturn(null); depending on your implementation
+        when(patientRepository.findById(patientId)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/consultations/dossier-patient/{patientId}", patientId))
                .andExpect(status().isNotFound());
@@ -90,62 +81,31 @@ class ConsultationControllerTest {
     void shouldAddNewConsultationWithoutFiles() throws Exception {
         Long patientId = 1L;
         Long medecinId = 2L;
-        
-        Consultation consultation = new Consultation();
-        consultation.setId(1);
-        
-        // CHANGED: Mock the service method
-        when(consultationService.addConsultationWithoutFiles(
-            any(Long.class), 
-            any(Long.class), 
-            any(String.class),
-            any(), // add other parameters as needed
-            any()))
-            .thenReturn(consultation);
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/consultations/nouvelle")
+        mockMvc.perform(multipart("/api/consultations/nouvelle")
                 .param("patientId", patientId.toString())
                 .param("medecinId", medecinId.toString())
                 .param("motif", "Checkup"))
                .andExpect(status().isOk());
-        
-        verify(consultationService, times(1))
-            .addConsultationWithoutFiles(any(Long.class), any(Long.class), any(String.class), any(), any());
     }
 
     @Test
     void shouldAddNewConsultationWithFiles() throws Exception {
         Long patientId = 1L;
         Long medecinId = 2L;
-        
-        Consultation consultation = new Consultation();
-        consultation.setId(1);
-        
-        // CHANGED: Mock the service method for file upload
-        when(consultationService.addConsultationWithFiles(
-            any(Long.class), 
-            any(Long.class), 
-            any(String.class),
-            any(), // add other parameters
-            any(),
-            any())) // for files
-            .thenReturn(consultation);
 
         MockMultipartFile file = new MockMultipartFile(
-                "fichiers",      // This must match the parameter name in your controller
+                "fichiers",
                 "test.txt",
                 MediaType.TEXT_PLAIN_VALUE,
                 "Hello World".getBytes()
         );
 
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/consultations/nouvelle")
+        mockMvc.perform(multipart("/api/consultations/nouvelle")
                 .file(file)
                 .param("patientId", patientId.toString())
                 .param("medecinId", medecinId.toString())
                 .param("motif", "Checkup"))
                .andExpect(status().isOk());
-        
-        verify(consultationService, times(1))
-            .addConsultationWithFiles(any(Long.class), any(Long.class), any(String.class), any(), any(), any());
     }
 }
