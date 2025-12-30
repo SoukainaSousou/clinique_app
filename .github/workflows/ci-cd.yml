@@ -144,32 +144,43 @@ docker-build:
     - name: Setup Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    # Étape 1: Build des images
-    - name: Build Docker Images
-      run: |
-        # Backend
-        cd clinique
-        docker build -t clinique-backend:${{ env.VERSION }} .
-        
-        # Frontend
-        cd ../clinique-frontend
-        docker build -t clinique-frontend:${{ env.VERSION }} .
-        
-        echo "✅ Docker images built successfully"
+   # ----------------------------
+# JOB 3: DOCKER BUILD (sans push)
+# ----------------------------
+docker-build:
+  runs-on: ubuntu-latest
+  needs: [build-and-test, security-scan]
+  if: always()
 
-    # Étape 2: Push seulement si c'est la branche main ET si on a les permissions
-    - name: Push to GHCR (Conditional)
-      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    # Version simplifiée - seulement build, pas de push
+    - name: Build Backend Docker Image
       run: |
-        # Login avec token personnel (il faut d'abord créer ce secret)
-        echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        cd clinique
+        echo "Building backend Docker image..."
+        docker build -t clinique-backend:${{ env.VERSION }} .
+        echo "✅ Backend image built successfully"
         
-        # Tag and push backend
-        docker tag clinique-backend:${{ env.VERSION }} ghcr.io/soukainasousou/clinique-backend:${{ env.VERSION }}
-        docker push ghcr.io/soukainasousou/clinique-backend:${{ env.VERSION }}
+        # Vérifier que l'image existe
+        docker images clinique-backend:${{ env.VERSION }}
+
+    - name: Build Frontend Docker Image
+      run: |
+        cd clinique-frontend
+        echo "Building frontend Docker image..."
+        docker build -t clinique-frontend:${{ env.VERSION }} .
+        echo "✅ Frontend image built successfully"
         
-        # Tag and push frontend
-        docker tag clinique-frontend:${{ env.VERSION }} ghcr.io/soukainasousou/clinique-frontend:${{ env.VERSION }}
-        docker push ghcr.io/soukainasousou/clinique-frontend:${{ env.VERSION }}
-        
-        echo "✅ Images pushed to GHCR"
+        # Vérifier que l'image existe
+        docker images clinique-frontend:${{ env.VERSION }}
+
+    - name: List Docker Images
+      run: |
+        echo "📦 All Docker images:"
+        docker images

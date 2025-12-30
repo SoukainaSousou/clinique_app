@@ -5,7 +5,7 @@ import {
   Stethoscope, Users, ClipboardList, Phone,
   Calendar, Clock, MapPin, ArrowRight,
   Heart, Eye, Brain, Star, ChevronDown,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, Mail,
   Baby, Microscope
 } from 'lucide-react';
 
@@ -36,10 +36,13 @@ const iconMap = {
 
 export default function CliniqueInfo() {
   // TOUS LES USESTATE DOIVENT ÊTRE À L'INTÉRIEUR DU COMPOSANT
-  const [services, setServices] = useState([]);
-  const [loadingServices, setLoadingServices] = useState(true);
   const [doctors, setDoctors] = useState([]);
+  const [services, setServices] = useState([]);
+  const [patientCount, setPatientCount] = useState(0); // NOUVEAU: État pour patients
   const [loadingDoctors, setLoadingDoctors] = useState(true);
+  const [loadingServices, setLoadingServices] = useState(true);
+  const [loadingPatients, setLoadingPatients] = useState(true); // NOUVEAU
+
 
   // États pour la modal de rendez-vous
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -93,7 +96,7 @@ export default function CliniqueInfo() {
       setLoadingSlots(false);
     }
   };
-
+ 
   const isSlotAvailable = (slot) => {
     return !occupiedSlots.includes(slot);
   };
@@ -284,7 +287,23 @@ const handleShowServiceDetails = async (service) => {
     };
     fetchDoctors();
   }, []);
-
+  useEffect(() => {
+    const fetchPatientCount = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/patients/count');
+        if (response.ok) {
+          const count = await response.json();
+          setPatientCount(count);
+        }
+      } catch (error) {
+        console.error('Erreur chargement patients:', error);
+        setPatientCount(10000); // Valeur par défaut si erreur
+      } finally {
+        setLoadingPatients(false);
+      }
+    };
+    fetchPatientCount();
+  }, []);
   // Charger les créneaux occupés quand la date ou le médecin change
   useEffect(() => {
     if (selectedDoctor && selectedDate) {
@@ -292,12 +311,45 @@ const handleShowServiceDetails = async (service) => {
     }
   }, [selectedDate, selectedDoctor]);
 
+  
+ const simpleStats = {
+    totalDoctors: doctors.length || 0,
+    totalPatients: patientCount, // ← NOMBRE RÉEL depuis la base
+    totalSpecialities: services.length || 0,
+    emergency: "24/7"
+  };
+
+  // 5. Formater les nombres pour l'affichage
+  const formatNumber = (num) => {
+    if (typeof num === 'string') return num;
+    if (num >= 10000) return `${Math.floor(num / 1000)}k+`;
+    if (num >= 50) return `${num}+`;
+    return num.toString();
+  };
+
+  // 6. Préparer les données pour l'affichage
   const stats = [
-    { number: "50+", label: "Médecins experts" },
-    { number: "10k+", label: "Patients satisfaits" },
-    { number: "24/7", label: "Urgences" },
-    { number: "15", label: "Spécialités" }
+    { 
+      number: loadingDoctors ? "..." : formatNumber(simpleStats.totalDoctors), 
+      label: "Médecins experts" 
+    },
+    { 
+      number: loadingPatients ? "..." : formatNumber(simpleStats.totalPatients), 
+      label: "Patients satisfaits" 
+    },
+    { 
+      number: simpleStats.emergency, 
+      label: "Urgences" 
+    },
+    { 
+      number: loadingServices ? "..." : formatNumber(simpleStats.totalSpecialities), 
+      label: "Spécialités" 
+    }
   ];
+
+  // 7. Afficher dans le texte
+  const displayPatientCount = loadingPatients ? "..." : formatNumber(patientCount);
+  const displayDoctorCount = loadingDoctors ? "..." : doctors.length;
 
   return (
     <div className={styles.container}>
@@ -333,44 +385,41 @@ const handleShowServiceDetails = async (service) => {
   </Link>
 </div>
           <div className={styles.heroStats}>
-  {stats.map((stat, index) => (
-    <motion.div
-      key={stat.label}
-      className={styles.statItem}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.8 + index * 0.1 }}
-    >
-      <div style={{
-        fontSize: '2rem',
-        fontWeight: 'bold',
-        color: '#ffffff', /* Blanc pur */
-        marginBottom: '0.5rem',
-        textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
-      }}>
-        {stat.number}
-      </div>
-      <div style={{
-        fontSize: '0.9rem',
-        color: '#fbbf24', /* Jaune doré */
-        fontWeight: '500',
-        textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)'
-      }}>
-        {stat.label}
-      </div>
-    </motion.div>
-  ))}
-</div>
-        </motion.div>
-
-        <motion.div
-          className={styles.scrollIndicator}
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <ChevronDown size={24} />
+            {stats.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                className={styles.statItem}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 + index * 0.1 }}
+              >
+                <div style={{
+                  fontSize: '2rem',
+                  fontWeight: 'bold',
+                  color: '#ffffff',
+                  marginBottom: '0.5rem',
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+                  minHeight: '3rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  {stat.number}
+                </div>
+                <div style={{
+                  fontSize: '0.9rem',
+                  color: '#fbbf24',
+                  fontWeight: '500',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)'
+                }}>
+                  {stat.label}
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
       </section>
+
 
       {/* ---- Section Services ---- */}
       <section id="services" className={styles.services}>
@@ -513,9 +562,7 @@ const handleShowServiceDetails = async (service) => {
                 <span>12 Rue de la Santé, Oujda</span>
               </div>
             </div>
-            <button className={styles.emergencyButton}>
-              Appeler Urgence <Phone size={16} />
-            </button>
+           
           </motion.div>
 
           <motion.div
@@ -528,7 +575,7 @@ const handleShowServiceDetails = async (service) => {
         </div>
       </section>
 
-     
+      
 
       {/* ---- Modal prise de rendez-vous ---- */}
       {selectedDoctor && step > 0 && (

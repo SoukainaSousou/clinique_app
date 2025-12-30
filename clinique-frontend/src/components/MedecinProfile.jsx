@@ -16,11 +16,13 @@ import { createAppointment } from '../services/rendezVousService';
 export default function MedecinProfile() {
   const { id } = useParams();
   const [doctor, setDoctor] = useState(null);
+  const [specialite, setSpecialite] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingSpecialite, setLoadingSpecialite] = useState(false);
 
   // États pour la modal de rendez-vous
   const [selectedDoctor, setSelectedDoctor] = useState(null);
-  const [step, setStep] = useState(0); // 0 = aucun, 1 = infos patient, 2 = date/creneau, 3 = confirmation
+  const [step, setStep] = useState(0);
   const [patientForm, setPatientForm] = useState({
     nom: '',
     prenom: '',
@@ -47,6 +49,44 @@ export default function MedecinProfile() {
 
   const saturdaySlots = ['09:00','09:30','10:00','10:30','11:00','11:30'];
 
+  // Charger le médecin
+  useEffect(() => {
+    const fetchDoctor = async () => {
+      try {
+        const data = await getDoctorById(id);
+        console.log('🔍 Données du médecin reçues:', data);
+        setDoctor(data);
+        
+        // Charger la spécialité si specialiteId existe
+        if (data.specialiteId) {
+          await fetchSpecialite(data.specialiteId);
+        }
+      } catch (error) {
+        console.error('Erreur chargement médecin :', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDoctor();
+  }, [id]);
+
+  // Fonction pour charger la spécialité
+  const fetchSpecialite = async (specialiteId) => {
+    try {
+      setLoadingSpecialite(true);
+      const response = await fetch(`http://localhost:8080/api/specialities/${specialiteId}`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('🎯 Spécialité chargée:', data);
+        setSpecialite(data);
+      }
+    } catch (error) {
+      console.error('Erreur chargement spécialité:', error);
+    } finally {
+      setLoadingSpecialite(false);
+    }
+  };
+
   // Fonction pour récupérer les créneaux occupés
   const fetchOccupiedSlots = async (doctorId, date) => {
     if (!doctorId || !date) return;
@@ -67,7 +107,6 @@ export default function MedecinProfile() {
     }
   };
 
-  // Fonction pour vérifier si un créneau est disponible
   const isSlotAvailable = (slot) => {
     return !occupiedSlots.includes(slot);
   };
@@ -178,26 +217,12 @@ export default function MedecinProfile() {
     }
   };
 
-  // Charger les créneaux occupés quand la date ou le médecin change
+  // Charger les créneaux occupés
   useEffect(() => {
     if (selectedDoctor && selectedDate) {
       fetchOccupiedSlots(selectedDoctor.id, selectedDate);
     }
   }, [selectedDate, selectedDoctor]);
-
-  useEffect(() => {
-    const fetchDoctor = async () => {
-      try {
-        const data = await getDoctorById(id);
-        setDoctor(data);
-      } catch (error) {
-        console.error('Erreur chargement médecin :', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDoctor();
-  }, [id]);
 
   if (loading) {
     return (
@@ -219,25 +244,37 @@ export default function MedecinProfile() {
     );
   }
 
-  // Sécurité sur les champs
-  const user = doctor.user || {};
-  const specialite = doctor.specialite || {};
+  // RÉCUPÉRATION DES DONNÉES
+  const firstName = doctor.prenom || '';
+  const lastName = doctor.nom || '';
+  const fullName = `Dr ${firstName} ${lastName}`.trim();
 
-  const fullName = `Dr ${user.prenom || doctor.prenom || ''} ${user.nom || doctor.nom || ''}`.trim();
-  const email = user.email || doctor.email || null;
-  const phone = user.telephone || user.phone || doctor.telephone || null;
+  // Email et téléphone
+  const email = doctor.email || null;
+  const phone = doctor.telephone || null;
 
-  const langues = doctor.languages
-    ? (Array.isArray(doctor.languages)
-        ? doctor.languages
-        : doctor.languages.split(',').map((l) => l.trim()).filter(Boolean))
-    : [];
+  // Spécialité
+  const specialiteTitle = loadingSpecialite ? 'Chargement...' : (specialite?.title || 'Spécialité non renseignée');
+  const specialiteDescription = specialite?.description || '';
+  const specialiteIcon = specialite?.iconName || '👨‍⚕️';
 
-  const experienceText =
-    doctor.experiences ||
-    `Médecin expérimenté au sein de la clinique SantéPlus, spécialisé en ${
-      specialite.title || 'médecine générale'
-    } et engagé pour un suivi personnalisé de ses patients.`;
+  // Image
+  const doctorImage = doctor.image || null;
+
+  // Langues
+  let langues = [];
+  const languagesField = doctor.languages;
+  if (languagesField) {
+    if (Array.isArray(languagesField)) {
+      langues = languagesField;
+    } else if (typeof languagesField === 'string') {
+      langues = languagesField.split(',').map(l => l.trim()).filter(Boolean);
+    }
+  }
+
+  // Expérience
+  const experienceText = doctor.experiences || 
+    `Médecin expérimenté au sein de la clinique SantéPlus, spécialisé en ${specialiteTitle} et engagé pour un suivi personnalisé de ses patients.`;
 
   return (
     <div className={styles.page}>
@@ -257,22 +294,24 @@ export default function MedecinProfile() {
           <div className={styles.header}>
             <div className={styles.avatarWrapper}>
               <div className={styles.avatar}>
-                {doctor.image ? (
+                {doctorImage ? (
                   <img
-                    src={doctor.image}
+                    src={doctorImage}
                     alt={fullName}
                     onError={(e) => {
                       e.target.style.display = 'none';
+                      e.target.nextElementSibling.style.display = 'flex';
                     }}
                   />
-                ) : (
-                  <span className={styles.avatarEmoji}>
-                    {specialite.iconName || '👨‍⚕️'}
-                  </span>
-                )}
+                ) : null}
+                <span className={styles.avatarEmoji} style={{ 
+                  display: doctorImage ? 'none' : 'flex' 
+                }}>
+                  {specialiteIcon}
+                </span>
               </div>
               <div className={styles.specialityChip}>
-                {specialite.title || 'Spécialité non renseignée'}
+                {specialiteTitle}
               </div>
             </div>
 
@@ -285,18 +324,14 @@ export default function MedecinProfile() {
               </p>
 
               <div className={styles.ratingRow}>
-                <div className={styles.stars}>
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={18} fill="#fbbf24" color="#fbbf24" />
-                  ))}
-                </div>
-                <span className={styles.ratingText}>4.9 / 5 • 120 avis</span>
+                
+                
               </div>
 
               <div className={styles.headerBadges}>
-                <span className={styles.badge}>+10 ans d'expérience</span>
+                
                 <span className={styles.badge}>
-                  {langues.length > 0 ? `${langues.length} langues parlées` : 'Français'}
+                  {langues.length > 0 ? `${langues.length} langue(s) parlée(s)` : 'Français'}
                 </span>
               </div>
             </div>
@@ -316,10 +351,10 @@ export default function MedecinProfile() {
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>Spécialité</h2>
                 <div className={styles.specialityCard}>
-                  <h3>{specialite.title || 'Non renseignée'}</h3>
+                  <h3>{specialiteTitle}</h3>
                   <p>
-                    {specialite.description ||
-                      `Consultations, diagnostics et suivi en ${specialite.title || 'médecine générale'} 
+                    {specialiteDescription || 
+                      `Consultations, diagnostics et suivi en ${specialiteTitle} 
                       avec une approche centrée sur le patient.`}
                   </p>
                 </div>
@@ -330,8 +365,8 @@ export default function MedecinProfile() {
                 <h2 className={styles.sectionTitle}>Langues parlées</h2>
                 <div className={styles.chipsRow}>
                   {langues.length > 0 ? (
-                    langues.map((lang) => (
-                      <span key={lang} className={styles.chip}>
+                    langues.map((lang, index) => (
+                      <span key={index} className={styles.chip}>
                         <Globe size={14} />
                         <span>{lang}</span>
                       </span>
@@ -376,7 +411,7 @@ export default function MedecinProfile() {
               <section className={`${styles.section} ${styles.sectionCard}`}>
                 <h2 className={styles.sectionTitle}>Prendre rendez-vous</h2>
                 <p className={styles.sectionText}>
-                  Réservez directement un rendez-vous en ligne avec {fullName}.
+                  Réservez directement un rendez-vous en ligne avec {firstName || 'le Docteur'}.
                   Choisissez la date et l'horaire qui vous conviennent.
                 </p>
 
@@ -409,12 +444,12 @@ export default function MedecinProfile() {
                     alt={`${selectedDoctor.nom} ${selectedDoctor.prenom}`}
                   />
                 ) : (
-                  <span>{selectedDoctor.specialite?.iconName || '👨‍⚕️'}</span>
+                  <span>{specialiteIcon}</span>
                 )}
               </div>
               <div className={styles.doctorHeaderInfo}>
                 <h3>Dr {selectedDoctor.nom} {selectedDoctor.prenom}</h3>
-                <p className={styles.headerSpecialty}>{selectedDoctor.specialite?.title}</p>
+                <p className={styles.headerSpecialty}>{specialiteTitle}</p>
                 <p className={styles.headerLocation}><MapPin size={14} /> Oujda Principal Oujda</p>
               </div>
             </div>
@@ -428,9 +463,7 @@ export default function MedecinProfile() {
                 <form onSubmit={(e) => { 
                   e.preventDefault(); 
                   
-                  // Validation avancée
                   const errors = [];
-                  
                   if (!patientForm.nom.trim()) errors.push('Le nom est obligatoire');
                   if (!patientForm.prenom.trim()) errors.push('Le prénom est obligatoire');
                   if (!patientForm.email.trim()) errors.push("L'email est obligatoire");
@@ -450,52 +483,58 @@ export default function MedecinProfile() {
                   setStep(2); 
                 }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                    <label>Nom :
+                    <div>
+                      <label>Nom :</label>
                       <input 
                         type="text" 
                         value={patientForm.nom} 
                         onChange={(e) => setPatientForm({ ...patientForm, nom: e.target.value })} 
                         required 
                       />
-                    </label>
-                    <label>Prénom :
+                    </div>
+                    <div>
+                      <label>Prénom :</label>
                       <input 
                         type="text" 
                         value={patientForm.prenom} 
                         onChange={(e) => setPatientForm({ ...patientForm, prenom: e.target.value })} 
                         required 
                       />
-                    </label>
+                    </div>
                   </div>
                   
-                  <label>Email :
+                  <div>
+                    <label>Email :</label>
                     <input 
                       type="email" 
                       value={patientForm.email} 
                       onChange={(e) => setPatientForm({ ...patientForm, email: e.target.value })} 
                       required 
                     />
-                  </label>
+                  </div>
                   
-                  <label>Téléphone :
+                  <div>
+                    <label>Téléphone :</label>
                     <input 
                       type="tel" 
                       value={patientForm.telephone} 
                       onChange={(e) => setPatientForm({ ...patientForm, telephone: e.target.value })} 
                       required 
                     />
-                  </label>
+                  </div>
                   
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                    <label>CIN :
+                    <div>
+                      <label>CIN :</label>
                       <input 
                         type="text" 
                         value={patientForm.cin} 
                         onChange={(e) => setPatientForm({ ...patientForm, cin: e.target.value })}
                         required
                       />
-                    </label>
-                    <label>Mot de passe :
+                    </div>
+                    <div>
+                      <label>Mot de passe :</label>
                       <input 
                         type="password" 
                         value={patientForm.mot_de_passe} 
@@ -503,7 +542,7 @@ export default function MedecinProfile() {
                         required
                         minLength="6"
                       />
-                    </label>
+                    </div>
                   </div>
                   
                   <div style={{ 
@@ -534,12 +573,12 @@ export default function MedecinProfile() {
                   </div>
 
                   <div className={styles.daysRow}>
-                    {getWeekDays(selectedDate).map((d) => {
+                    {getWeekDays(selectedDate).map((d, index) => {
                       const isSelected = d.toDateString() === selectedDate.toDateString();
                       const isSunday = d.getDay() === 0;
                       const isPast = d < new Date(new Date().setHours(0,0,0,0));
                       return (
-                        <button key={d.toISOString()} type="button"
+                        <button key={index} type="button"
                           className={`${styles.dayCard} ${isSelected ? styles.dayCardSelected : ''} ${isSunday || isPast ? styles.dayCardDisabled : ''}`}
                           onClick={() => { if(!isSunday && !isPast){ setSelectedDate(d); setSelectedSlot(''); } }}
                           disabled={isSunday || isPast}>
@@ -557,13 +596,13 @@ export default function MedecinProfile() {
                   )}
 
                   <div className={styles.slotsGrid}>
-                    {getSlotsForDate(selectedDate).map(slot => {
+                    {getSlotsForDate(selectedDate).map((slot, index) => {
                       const isOccupied = !isSlotAvailable(slot);
                       const isSelected = selectedSlot === slot;
                       
                       return (
                         <button 
-                          key={slot} 
+                          key={index} 
                           type="button"
                           className={`${styles.slotButton} ${
                             isSelected ? styles.slotButtonSelected : ''
@@ -623,8 +662,8 @@ export default function MedecinProfile() {
             {step === 3 && (
               <div className={styles.stepContent}>
                 <h3>Confirmation du rendez-vous</h3>
-                <p><strong>Docteur :</strong> {selectedDoctor.nom} {selectedDoctor.prenom}</p>
-                <p><strong>Spécialité :</strong> {selectedDoctor.specialite?.title}</p>
+                <p><strong>Docteur :</strong> Dr {selectedDoctor.nom} {selectedDoctor.prenom}</p>
+                <p><strong>Spécialité :</strong> {specialiteTitle}</p>
                 <p><strong>Patient :</strong> {patientForm.prenom} {patientForm.nom}</p>
                 <p><strong>Email :</strong> {patientForm.email}</p>
                 <p><strong>Téléphone :</strong> {patientForm.telephone}</p>
