@@ -11,6 +11,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME_BACKEND: clinique-backend
   IMAGE_NAME_FRONTEND: clinique-frontend
+  # Version en minuscules
   VERSION: ${{ github.sha }}
   TRIVY_VERSION: "0.51.1"
   # Variable pour contrôler l'exécution des tests
@@ -129,7 +130,7 @@ jobs:
           trivy fs --exit-code 0 --severity HIGH,CRITICAL .
 
   # ----------------------------
-  # JOB 3: DOCKER BUILD (toujours exécuté)
+  # JOB 3: DOCKER BUILD (toujours exécuté) - CORRIGÉ
   # ----------------------------
   docker-build:
     runs-on: ubuntu-latest
@@ -151,18 +152,28 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Version avec repository owner en minuscules
       - name: Build Backend Docker Image
         run: |
           cd clinique
-          docker build -t ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_BACKEND }}:${{ env.VERSION }} .
+          # Convertir le repository owner en minuscules
+          REPO_OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "Building backend image as: ${{ env.REGISTRY }}/$REPO_OWNER_LOWER/${{ env.IMAGE_NAME_BACKEND }}:${{ env.VERSION }}"
+          docker build -t ${{ env.REGISTRY }}/$REPO_OWNER_LOWER/${{ env.IMAGE_NAME_BACKEND }}:${{ env.VERSION }} .
 
       - name: Build Frontend Docker Image
         run: |
           cd clinique-frontend
-          docker build -t ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ env.VERSION }} .
+          # Convertir le repository owner en minuscules
+          REPO_OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "Building frontend image as: ${{ env.REGISTRY }}/$REPO_OWNER_LOWER/${{ env.IMAGE_NAME_FRONTEND }}:${{ env.VERSION }}"
+          docker build -t ${{ env.REGISTRY }}/$REPO_OWNER_LOWER/${{ env.IMAGE_NAME_FRONTEND }}:${{ env.VERSION }} .
 
       - name: Push Images (Main only)
         if: github.ref == 'refs/heads/main'
         run: |
-          docker push ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_BACKEND }}:${{ env.VERSION }}
-          docker push ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ env.VERSION }}
+          # Convertir le repository owner en minuscules
+          REPO_OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "Pushing images with repo owner: $REPO_OWNER_LOWER"
+          docker push ${{ env.REGISTRY }}/$REPO_OWNER_LOWER/${{ env.IMAGE_NAME_BACKEND }}:${{ env.VERSION }}
+          docker push ${{ env.REGISTRY }}/$REPO_OWNER_LOWER/${{ env.IMAGE_NAME_FRONTEND }}:${{ env.VERSION }}
