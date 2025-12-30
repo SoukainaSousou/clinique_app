@@ -9,7 +9,7 @@ import DoctorsPage from './pages/DoctorsPage';
 import ServicesPage from './pages/ServicesPage';
 import ContactPage from './pages/ContactPage';
 import EmergencyPage from './pages/EmergencyPage';
-import DoctorDetail from './components/DoctorDetail';
+
 
 import DashboardM from "./pages/medecin/MedecinDashboard";
 import Rendezvous from "./pages/medecin/RendezvousM";

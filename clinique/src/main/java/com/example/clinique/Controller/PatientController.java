@@ -84,6 +84,10 @@ public Patient updatePatient(@PathVariable Long id, @RequestBody Patient updated
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
+ @GetMapping("/count")
+    public ResponseEntity<Long> countPatients() {
+        long count = patientRepository.count();
+        return ResponseEntity.ok(count);
+    }
 }
 
