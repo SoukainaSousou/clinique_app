@@ -24,7 +24,6 @@ export default function Navbar() {
           <li><Link to="/services" className={styles.navLink}>Services</Link></li>
           <li><Link to="/medecins" className={styles.navLink}>Médecins</Link></li>
           <li><Link to="/urgences" className={styles.navLink}>Urgences</Link></li>
-          <li><Link to="/contact" className={styles.navLink}>Contact</Link></li>
           <li>
             <Link to="/login" className={styles.ctaButton}>
               Login 

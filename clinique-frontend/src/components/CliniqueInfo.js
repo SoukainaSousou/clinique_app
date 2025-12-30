@@ -528,64 +528,7 @@ const handleShowServiceDetails = async (service) => {
         </div>
       </section>
 
-      {/* ---- Section Contact ---- */}
-      <section id="contact" className={styles.contact}>
-        <div className={styles.contactContent}>
-          <div className={styles.contactInfo}>
-            <h2 className={styles.contactTitle}>Prendre Contact</h2>
-            <p className={styles.contactDescription}>
-              N'hésitez pas à nous contacter pour toute question ou prise de rendez-vous.
-            </p>
-
-            <div className={styles.contactItems}>
-              <div className={styles.contactItem}>
-                <Phone size={24} />
-                <div>
-                  <h4>Téléphone</h4>
-                  <p>0536-50-06-01</p>
-                </div>
-              </div>
-
-              <div className={styles.contactItem}>
-                <MapPin size={24} />
-                <div>
-                  <h4>Adresse</h4>
-                  <p>12 Rue de la Santé, Oujda</p>
-                </div>
-              </div>
-
-              <div className={styles.contactItem}>
-                <Clock size={24} />
-                <div>
-                  <h4>Horaires</h4>
-                  <p>Lun - Ven: 8h-20h<br />Sam: 8h-14h</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.contactForm}>
-            <h3>Formulaire de Contact</h3>
-            <form className={styles.form}>
-              <div className={styles.formGroup}>
-                <input type="text" placeholder="Votre nom" className={styles.formInput} />
-              </div>
-              <div className={styles.formGroup}>
-                <input type="email" placeholder="Votre email" className={styles.formInput} />
-              </div>
-              <div className={styles.formGroup}>
-                <input type="tel" placeholder="Votre téléphone" className={styles.formInput} />
-              </div>
-              <div className={styles.formGroup}>
-                <textarea placeholder="Votre message" rows="4" className={styles.formTextarea}></textarea>
-              </div>
-              <button type="submit" className={styles.submitButton}>
-                Envoyer Message <ArrowRight size={16} />
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
+     
 
       {/* ---- Modal prise de rendez-vous ---- */}
       {selectedDoctor && step > 0 && (
